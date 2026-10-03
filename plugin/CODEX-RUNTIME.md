@@ -33,3 +33,11 @@ Claude history-search tools and token-accounting hooks have no equivalent guaran
 The native plugin declares a PreToolUse hook that normalizes Codex shell/apply_patch payloads into the upstream detector. Hooks require a Codex host/version supporting plugin hooks and hook enablement. Plugin installation alone does not prove a hook ran. The artifact scanner is also mandatory. Shell detection is conservative and cannot identify every computed write; user review and package scanning remain required.
 
 Python 3.10+ with python-docx and lxml, and pandoc on PATH, are required for export. Run the existing export fixture tests and actual DOCX generation to validate. Claude CLI commands, .plugin uploads, Cowork installation, and /skill-creator are replaced by the Codex installation and external career-data procedures in this contract.
+
+## Package updates
+
+Read UPDATE-CONTRACT.md on every update. Regeneration and packaging ship matching Codex and ChatGPT archives; README and the ChatGPT kit always document both Custom GPT and Project installation. The QA role also reviews the ChatGPT host mappings, knowledge coverage, instructions, portable runtime, and installation guide. Keep live ChatGPT account checks separate from offline packaging and export evidence. User career-data remains external across all updates.
+
+## Installation and refresh
+
+For a new Codex CLI installation, install Node.js, run `npm install -g @openai/codex@latest`, then `codex login`. Register `codex plugin marketplace add spinningrachel/career-engine-codex --ref main`, install `codex plugin add career-engine@cheyfitz-codex`, and start a new `codex` session. Ask `$career-engine-setup` to configure external career-data. After updates, run `codex plugin marketplace upgrade cheyfitz-codex`, reinstall with the same plugin-add command, and start a new session. See the repository README for the supported host version, prerequisites, and both ChatGPT installation alternatives; their extracted kit includes START-HERE.md and both instruction variants. Every update reviews these steps under UPDATE-CONTRACT.md.
