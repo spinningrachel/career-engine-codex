@@ -1,0 +1,81 @@
+name: Sync upstream with Codex
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [career-engine-updated]
+concurrency:
+  group: career-engine-upstream-sync
+  cancel-in-progress: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Detect a new upstream version
+        id: upstream
+        run: python3 tools/detect-upstream.py
+      - name: Check Codex automation credential
+        if: steps.upstream.outputs.changed == 'true'
+        env:
+          CODEX_AUTOMATION_KEY: ${{ secrets.CODEX_SYNC_API_KEY }}
+        run: |
+          if [ -z "$CODEX_AUTOMATION_KEY" ]; then
+            echo 'Add the CODEX_SYNC_API_KEY GitHub Actions secret to enable Codex sync review.' >&2
+            exit 1
+          fi
+      - name: Prepare dependencies
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+          python3 -m pip install -r requirements.txt
+          mkdir -p codex/overrides
+      - name: Generate and validate the mechanical port
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          python3 tools/port.py --source .sync-work/upstream
+          bash tools/validate.sh
+      - name: Review and adapt with Codex
+        if: steps.upstream.outputs.changed == 'true'
+        uses: openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e
+        with:
+          openai-api-key: ${{ secrets.CODEX_SYNC_API_KEY }}
+          permission-profile: ':workspace'
+          allow-bots: true
+          prompt-file: codex/sync-review.md
+          output-schema-file: codex/sync-result.schema.json
+          output-file: .sync-work/review-result.json
+      - name: Require review and rerun validation
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          python3 -c 'import json; r=json.load(open(".sync-work/review-result.json")); assert r["status"]=="passed" and not r["unresolved"],r'
+          bash tools/validate.sh
+          git diff --exit-code -- .github AGENTS.md requirements.txt codex/runtime.md codex/sync-review.md codex/sync-result.schema.json codex/personal-data-hook.py codex/question-gate.py tools/build.py tools/scan-repo.py tools/detect-upstream.py tools/publish-sync.py tools/validate.sh
+      - name: Open the reviewed update PR
+        if: steps.upstream.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODEX_SYNC_AUTO_MERGE: ${{ vars.CODEX_SYNC_AUTO_MERGE != 'false' }}
+        run: |
+          gh auth setup-git
+          python3 tools/publish-sync.py
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.upstream.outputs.changed == 'true'
+        with:
+          name: upstream-sync-review
+          path: |
+            .sync-work/review-result.json
+            .sync-work/upstream.diff
+            dist/career-engine-codex.zip

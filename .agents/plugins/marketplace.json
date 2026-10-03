@@ -1,0 +1,11 @@
+{
+  "name": "cheyfitz-codex",
+  "interface": {"displayName": "Rachel Cheyfitz's Codex plugins"},
+  "plugins": [
+    {
+      "name": "career-engine",
+      "source": {"source": "local", "path": "./plugin"},
+      "category": "Productivity"
+    }
+  ]
+}

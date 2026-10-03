@@ -1,0 +1,14 @@
+{
+  "name": "career-engine",
+  "version": "1.0.0+upstream.6afc7542f3d0.codex.33dffc059dc7",
+  "description": "Career management, tailored CVs, cover letters, and DOCX export for Codex.",
+  "skills": "./skills",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Career Engine",
+    "shortDescription": "Career workflows and document exports for Codex",
+    "developerName": "Rachel Cheyfitz",
+    "category": "Productivity",
+    "defaultPrompt": "Use $career-engine to help with my career workflow."
+  }
+}
