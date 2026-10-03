@@ -27,12 +27,12 @@ jobs:
         id: upstream
         run: python3 tools/detect-upstream.py
       - name: Check Codex automation credential
-        if: steps.upstream.outputs.changed == 'true'
+        if: steps.upstream.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         env:
-          CODEX_AUTOMATION_KEY: ${{ secrets.CODEX_SYNC_API_KEY }}
+          CODEX_AUTOMATION_KEY: ${{ secrets.ALLOW_CODEX_UPDATES }}
         run: |
           if [ -z "$CODEX_AUTOMATION_KEY" ]; then
-            echo 'Add the CODEX_SYNC_API_KEY GitHub Actions secret to enable Codex sync review.' >&2
+            echo 'Add the ALLOW_CODEX_UPDATES Actions secret in career-engine-codex to enable Codex sync review.' >&2
             exit 1
           fi
       - name: Prepare dependencies
@@ -52,7 +52,7 @@ jobs:
         if: steps.upstream.outputs.changed == 'true'
         uses: openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e
         with:
-          openai-api-key: ${{ secrets.CODEX_SYNC_API_KEY }}
+          openai-api-key: ${{ secrets.ALLOW_CODEX_UPDATES }}
           permission-profile: ':workspace'
           allow-bots: true
           prompt-file: codex/sync-review.md
