@@ -46,6 +46,7 @@ jobs:
         if: steps.upstream.outputs.changed == 'true'
         run: |
           python3 tools/port.py --source .sync-work/upstream
+          python3 tools/build.py
           bash tools/validate.sh
       - name: Review and adapt with Codex
         if: steps.upstream.outputs.changed == 'true'
@@ -62,7 +63,7 @@ jobs:
         run: |
           python3 -c 'import json; r=json.load(open(".sync-work/review-result.json")); assert r["status"]=="passed" and not r["unresolved"],r'
           bash tools/validate.sh
-          git diff --exit-code -- .github AGENTS.md requirements.txt codex/runtime.md codex/sync-review.md codex/sync-result.schema.json codex/personal-data-hook.py codex/question-gate.py tools/build.py tools/scan-repo.py tools/detect-upstream.py tools/publish-sync.py tools/validate.sh
+          git diff --exit-code -- .github AGENTS.md requirements.txt codex/runtime.md codex/qa-plugin.md codex/sync-review.md codex/sync-result.schema.json codex/personal-data-hook.py codex/question-gate.py tools/build.py tools/check-codex-compatibility.py tools/scan-repo.py tools/detect-upstream.py tools/publish-sync.py tools/validate.sh
       - name: Open the reviewed update PR
         if: steps.upstream.outputs.changed == 'true'
         env:
@@ -78,4 +79,4 @@ jobs:
           path: |
             .sync-work/review-result.json
             .sync-work/upstream.diff
-            dist/career-engine-codex.zip
+            career-engine-codex.zip

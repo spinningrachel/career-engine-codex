@@ -20,4 +20,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: career-engine-codex
-          path: dist/career-engine-codex.zip
+          path: career-engine-codex.zip
