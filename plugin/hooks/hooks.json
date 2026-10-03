@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/codex-personal-data-hook.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "request_user_input|request_user_input_async|AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/codex-question-gate.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

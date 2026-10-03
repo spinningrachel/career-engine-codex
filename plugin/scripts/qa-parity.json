@@ -1,0 +1,399 @@
+{
+  "_comment": "Manifest for scripts/qa-parity.py — the relational QA layer. Each set declares a consistency contract that spans files; the checker fails when any location drifts. When a fix adds a member to one list, add it HERE too — the checker then forces the sweep of every sibling list. Region anchors are literal substrings; if a heading is reworded, update the anchor here in the same commit.",
+  "member_sets": [
+    {
+      "id": "coach-fields",
+      "_comment": "The coach mandatory-field parity contract (CLAUDE.md cross-file-contracts): Step 0.8 coach-complete list, Step 0.9a confirmation pass, gatekeeper Coach Output Check presence-check, and coach-output.md template slots must all carry every member. 'Hiring Manager's Name' is deliberately NOT a member — it is research-derived and optional (may be genuinely unfindable), mandatory nowhere.",
+      "members": [
+        "Role summary",
+        "Role emphasis",
+        "Keywords",
+        "Strategy",
+        "Role Type",
+        "Relationship type",
+        "Gap handling",
+        "Culture",
+        "Landscape",
+        "JD proof",
+        "Priority Reason",
+        "Company Stage",
+        "Location",
+        "First Advertised",
+        "Manager role confirmed",
+        "Hiring manager's role",
+        "No incumbents in this function",
+        "JD Body",
+        "CV Type",
+        "CV Titles"
+      ],
+      "locations": [
+        {
+          "file": "skills/career-engine-intake/SKILL.md",
+          "start": "## Step 0.8 — Career coach",
+          "end": "## Step 0.8.5"
+        },
+        {
+          "file": "skills/career-engine-intake/SKILL.md",
+          "start": "### 0.9a — Write coach outputs",
+          "end": "### 0.9b"
+        },
+        {
+          "file": "skills/gatekeeper-checks/coach-gates.md",
+          "start": "## Coach Output Check"
+        },
+        {
+          "file": "skills/career-coach/coach-output.md"
+        }
+      ]
+    },
+    {
+      "id": "intake-0b-capture",
+      "_comment": "Step 0b's delegated per-page fetch must capture every property any downstream step (0.5 routing, 0.8 coach-complete, 0.9a writeback) reads. Two confirmed production-failure families live here: JD Body/WIWTR (2026-07-13 fix) and the three coach-complete fields (2026-07-13 calibration finding).",
+      "members": [
+        "Role summary",
+        "Role emphasis",
+        "Keywords",
+        "Strategy",
+        "Role Type",
+        "Relationship type",
+        "Gap handling",
+        "Culture",
+        "Landscape",
+        "JD proof",
+        "Priority",
+        "Priority Reason",
+        "Company Stage",
+        "Location",
+        "First Advertised",
+        "Manager role confirmed",
+        "Hiring manager's role",
+        "No incumbents in this function",
+        "JD Body",
+        "Why I Want This Role",
+        "CV Type",
+        "CV Titles",
+        "CV Title Preferences"
+      ],
+      "locations": [
+        {
+          "file": "skills/career-engine-intake/SKILL.md",
+          "start": "Delegate the per-page property fetch",
+          "end": "Receive that one returned block"
+        }
+      ]
+    },
+    {
+      "id": "archived-row-exclusion",
+      "_comment": "2026-07-23 fix: the adapter's archived/in-trash exclusion rule and role-prioritizer's scores-only caller contract cite each other; both files must keep naming the rule. Anchors are literal substrings.",
+      "members": [
+        "archived"
+      ],
+      "locations": [
+        {
+          "file": "skills/database-notion/SKILL.md",
+          "start": "## Rules for all paths"
+        },
+        {
+          "file": "agents/role-prioritizer.md",
+          "start": "## Database-tool availability gate",
+          "end": "## Step 0"
+        }
+      ]
+    },
+    {
+      "id": "jd-fetch-markers",
+      "_comment": "2026-08-12 (Anecdotes run): the two new Step 0.45/0.5 fetch markers must appear in every site that branches on a marker, or a no-JD or dead-cached role silently takes the live-fetch path. Sites: Step 0.5's marker list + JD Body write rule, Step 0.8 coach-complete JD Body condition, Step 0.9a confirmation pass, and the gatekeeper's presence check.",
+      "members": [
+        "no-public-jd",
+        "url-dead-cached-jd"
+      ],
+      "locations": [
+        {
+          "file": "skills/career-engine-intake/SKILL.md",
+          "start": "## Step 0.45",
+          "end": "## Step 0.6"
+        },
+        {
+          "file": "skills/career-engine-intake/SKILL.md",
+          "start": "## Step 0.8 — Career coach",
+          "end": "## Step 0.8.5"
+        },
+        {
+          "file": "skills/career-engine-intake/SKILL.md",
+          "start": "### 0.9a — Write coach outputs",
+          "end": "### 0.9b"
+        },
+        {
+          "file": "skills/gatekeeper-checks/coach-gates.md",
+          "start": "## Coach Output Check"
+        }
+      ]
+    },
+    {
+      "id": "startup-jobs-tools",
+      "members": [
+        "mcp__startup-jobs__search_jobs",
+        "mcp__startup-jobs__get_job",
+        "mcp__startup-jobs__list_countries"
+      ],
+      "locations": [
+        {
+          "file": "agents/source-open-roles.md",
+          "start": "tools: Read",
+          "end": "# Source Open Roles"
+        },
+        {
+          "file": "references/job-sourcing-mcp-registry.md"
+        },
+        {
+          "file": "skills/source-open-roles/SKILL.md",
+          "start": "### Startup / tech sites",
+          "skip_members": [
+            "mcp__startup-jobs__list_countries"
+          ]
+        },
+        {
+          "file": "CONNECTORS.md",
+          "start": "### startup.jobs MCP"
+        }
+      ],
+      "_comment": "2026-09-10: every startup-jobs MCP tool named as in-use anywhere (Site Catalog, registry, CONNECTORS.md) must also appear in the agent's own tools: frontmatter grant — a subagent's tool access is a static allowlist, so a tool named everywhere but there can never actually be called. This is the exact gap the first QA pass on this feature caught. SKILL.md's Site Catalog row only needs the two fetch tools (search_jobs/get_job) — the canary name itself is deliberately generic there (see the Job-Sourcing MCP Registry section), named explicitly only in the agent frontmatter, the registry's Canary column, and CONNECTORS.md."
+    }
+  ],
+  "defined_terms": [
+    {
+      "id": "term-halt-policy",
+      "term": "flag-and-deliver policy",
+      "files": [
+        "skills/career-engine-orchestrator/orchestrator-queue.md"
+      ],
+      "_comment": "2026-07-14: renamed from halt-before-export policy per the user's direct instruction — cap exhaustion delivers flagged output, never nothing. Both pipelines cite this exact name; definition lives in orchestrator-queue.md Absolute Constraints."
+    },
+    {
+      "id": "term-absolute-constraints",
+      "term": "Absolute Constraints",
+      "files": [
+        "skills/career-engine-orchestrator/orchestrator-queue.md"
+      ]
+    },
+    {
+      "id": "term-locked-fixes",
+      "term": "locked-fixes instruction",
+      "files": [
+        "skills/career-engine-orchestrator/orchestrator-queue.md"
+      ]
+    },
+    {
+      "id": "term-scope-check",
+      "term": "mid-run scope-check anti-pattern",
+      "files": [
+        "CLAUDE.md",
+        "skills/career-engine-orchestrator/orchestrator-queue.md"
+      ]
+    },
+    {
+      "id": "term-personal-voice",
+      "term": "personal-voice exemption",
+      "files": [
+        "skills/writer-craft/core.md",
+        "skills/gatekeeper-checks/letter-gates.md"
+      ]
+    },
+    {
+      "id": "term-sufficiency-gate",
+      "term": "Sufficiency Gate",
+      "files": [
+        "agents/letter-writer.md"
+      ]
+    },
+    {
+      "id": "term-motivation-bank-gate",
+      "term": "Motivation Bank Gate",
+      "files": [
+        "agents/letter-writer.md"
+      ]
+    },
+    {
+      "id": "term-mechanical-locked-fix-checklist",
+      "term": "mechanical locked-fix checklist",
+      "files": [
+        "skills/career-engine-orchestrator/orchestrator-queue.md"
+      ]
+    },
+    {
+      "id": "term-requirements-coverage",
+      "_comment": "2026-07-29: intake-only requirements-coverage Priority scoring per the user's direct instruction — title/function mismatch never floors a score; hard MUSTs cap the tier; coverage of remaining requirements maps to tiers. User calibration lives in career-data 01-writing-rules.md §1 (outside the repo); the plugin-side generic principle is coach-analysis.md Part 0. Prioritization explicitly applies the base framework WITHOUT it.",
+      "term": "requirements-coverage subsection",
+      "files": [
+        "skills/career-coach/coach-analysis.md",
+        "agents/career-coach.md",
+        "agents/role-prioritizer.md",
+        "skills/role-prioritizer/SKILL.md"
+      ]
+    },
+    {
+      "id": "term-earliest-wins",
+      "_comment": "2026-07-29: First Advertised write semantics — earliest-wins merge with creation-date fallback, per the user, replacing always-overwrite + clear-to-empty. Procedure lives in intake Step 0.9a; the coach's date procedure references the merge.",
+      "term": "earliest-wins",
+      "files": [
+        "skills/career-engine-intake/SKILL.md",
+        "skills/career-coach/coach-analysis.md"
+      ]
+    },
+    {
+      "id": "term-letter-writer-input-contract",
+      "_comment": "2026-07-14: the letter-writer receives exactly three content inputs (final CV, Role emphasis, WIWTR) plus identity and routing tokens. Cited across both pipelines, writer-craft, gatekeeper-checks, recruiter-reviewer, career-coach, qa-plugin. Canonical statement lives in new-application Step 5 and the agent file.",
+      "term": "letter-writer input contract",
+      "files": [
+        "skills/career-engine-new-application/SKILL.md",
+        "agents/letter-writer.md"
+      ]
+    },
+    {
+      "id": "term-user-note-precedence",
+      "_comment": "2026-08-12 (Anecdotes run): the user's own first-hand notes outrank any scraped posting. queue.md carries them under this exact heading; intake Step 0.45 writes it, the coach reads it, Coach Output Check item 13 enforces it. Renaming the heading in one file silently disables the gate.",
+      "term": "USER-STATED ROLE FACTS",
+      "files": [
+        "skills/career-engine-intake/SKILL.md",
+        "skills/career-coach/SKILL.md",
+        "skills/gatekeeper-checks/coach-gates.md"
+      ]
+    },
+    {
+      "id": "term-jd-liveness",
+      "_comment": "2026-08-12 (Anecdotes run): a cache-capable extractor proves a posting existed, never that it is live. Step 0.5 defines the check, coach-research.md carries the coach-side rule, Coach Output Check item 14 enforces it, role-prioritizer inherits it.",
+      "term": "liveness check",
+      "files": [
+        "skills/career-engine-intake/SKILL.md",
+        "skills/career-coach/coach-research.md",
+        "skills/gatekeeper-checks/coach-gates.md",
+        "agents/role-prioritizer.md"
+      ]
+    },
+    {
+      "id": "term-adhoc-update-prompt-path",
+      "_comment": "2026-08-12: ad-hoc career-data update prompts carry personal data and go to <output_folder>/_career-data-updates/, never the plugin repo or cwd. The literal directory name is cited by the format file (source of truth), all three ad-hoc generators, and the CLAUDE.md contract row — renaming it in one place silently breaks the others.",
+      "term": "_career-data-updates",
+      "files": [
+        "references/career-data-update-prompt-format.md",
+        "agents/career-coach.md",
+        "agents/source-open-roles.md",
+        "skills/career-engine-setup/SKILL.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "id": "term-job-sourcing-mcp-wired-in",
+      "term": "Wired-in",
+      "files": [
+        "references/job-sourcing-mcp-registry.md",
+        "skills/source-open-roles/SKILL.md",
+        "agents/source-open-roles.md",
+        "CLAUDE.md"
+      ],
+      "_comment": "2026-09-10: the job-sourcing MCP registry's four-part Wired-in definition (confirmed tool name + recorded Canary + Site Catalog gate + tools: frontmatter grant, canary included) must be restated consistently, not just mention the word — this is a presence tripwire, not a semantic check; a QA judgment pass still has to verify the definitions actually agree. Canonical definition lives in references/job-sourcing-mcp-registry.md's 'Two statuses'."
+    },
+    {
+      "id": "term-manual-entry-coach-only",
+      "term": "Manual-entry",
+      "files": [
+        "agents/career-coach.md",
+        "skills/career-coach/coach-analysis.md"
+      ],
+      "_comment": "2026-09-15: JD Fetch Status's Manual-entry value must stay defined in both coach-side files (added 2026-08-13, once already missed from one of the two). Deliberately NOT required in agents/role-prioritizer.md — that agent's three-value list (Fetched/LinkedIn-blocked/Unfetchable) is correct as-is; Prioritization has no interactive path to produce Manual-entry. See career-coach.md's parity note."
+    },
+    {
+      "id": "term-role-tailoring-plan",
+      "_comment": "2026-09-17, per the user's direct instruction: each CV is tailored to one role — titles aligned (Retitle default / Descriptor / Keep / Fold), unrelated employers folded by name into the aggregation line, the whole CV written at the target role's level, inside four fixed honesty limits. The coach writes the plan (CV Titles) at intake; the user's own CV Title Preferences field is never written by any agent; both pipelines resolve it once (Step 0.titles / E0.titles) into $PIPE/cv-titles.md; cv-writer executes verbatim; Gate 6 and coach-gates item 15 enforce. Every file below must keep naming the plan.",
+      "term": "role-tailoring plan",
+      "files": [
+        "skills/writer-craft/cv.md",
+        "skills/career-coach/coach-analysis.md",
+        "skills/career-coach/coach-output.md",
+        "agents/career-coach.md",
+        "agents/cv-writer.md",
+        "agents/gatekeeper.md",
+        "agents/recruiter-reviewer.md",
+        "skills/gatekeeper-checks/coach-gates.md",
+        "skills/career-engine-intake/SKILL.md",
+        "skills/career-engine-new-application/SKILL.md",
+        "skills/career-engine-edit/SKILL.md",
+        "skills/database/SKILL.md"
+      ]
+    }
+  ],
+  "context_sets": [
+    {
+      "id": "gk-cl-spawn-params",
+      "_comment": "Every gatekeeper option=cover-letter spawn paragraph must carry CAREER_DATA and Strategy (the word-count-ceiling governor a bare respawn historically dropped), unless it explicitly restates by reference. min_sites guards against the trigger phrase being reworded out of existence, which would silently disable this check.",
+      "trigger": "option=cover-letter",
+      "files": [
+        "skills/career-engine-new-application/SKILL.md",
+        "skills/career-engine-edit/SKILL.md"
+      ],
+      "require": [
+        "CAREER_DATA=${CAREER_DATA}",
+        "Strategy",
+        "gap_handling_mode"
+      ],
+      "alternates": [
+        "same parameters as"
+      ],
+      "min_sites": 6
+    },
+    {
+      "id": "gk-cv-spawn-params",
+      "_comment": "Every gatekeeper option=cv spawn paragraph must carry CAREER_DATA and the resolved CV Type (single-resolution-point contract). 2026-09-17: also the role-tailoring plan path (CV_TITLES_PATH) — Gate 6 checks the CV against it.",
+      "trigger": "option=cv`",
+      "files": [
+        "skills/career-engine-new-application/SKILL.md",
+        "skills/career-engine-edit/SKILL.md"
+      ],
+      "require": [
+        "CAREER_DATA=${CAREER_DATA}",
+        "CV Type",
+        "gap_handling_mode",
+        "CV_TITLES_PATH"
+      ],
+      "alternates": [
+        "same parameters as"
+      ],
+      "min_sites": 4
+    },
+    {
+      "id": "pipeline-spawn-gap-mode",
+      "_comment": "2026-07-14: every subagent spawn in the New Application and Edit pipelines passes gap_handling_mode alongside CAREER_DATA (universal spawn parameter). Trigger = the literal CAREER_DATA restatement every spawn site carries; any paragraph restating it must also carry the mode token. min_sites guards against the pairing being reworded out of existence.",
+      "trigger": "CAREER_DATA=${CAREER_DATA}",
+      "files": [
+        "skills/career-engine-new-application/SKILL.md",
+        "skills/career-engine-edit/SKILL.md"
+      ],
+      "require": [
+        "gap_handling_mode"
+      ],
+      "alternates": [
+        "same parameters as"
+      ],
+      "min_sites": 29
+    }
+  ],
+  "pipe_closure": {
+    "id": "pipe-closure",
+    "_comment": "Every $PIPE/$RUN_PIPE/$QUEUE_PIPE file token a pipeline doc mentions must have at least one occurrence on a line with a write marker in that same doc — otherwise the doc reads a file nothing writes (the cv-final.md failure family, 2026-07-13). Exceptions list legitimate cross-file handoffs with the producing file named in the reason.",
+    "files": [
+      "skills/career-engine-new-application/SKILL.md",
+      "skills/career-engine-edit/SKILL.md",
+      "skills/career-engine-intake/SKILL.md",
+      "skills/career-engine-orchestrator/orchestrator-queue.md",
+      "skills/career-engine-orchestrator/orchestrator-post-run.md"
+    ],
+    "write_marker_regex": "writ|overwrit|OUTPUT_PATH=|CV_PATH=|LETTER_PATH=|save|sav(ed|ing)|append|copy|cp |cat >|land|creat|stag|restor|produce|establish",
+    "exceptions": [
+      {
+        "file": "skills/career-engine-orchestrator/orchestrator-queue.md",
+        "token": "$PIPE/queue.md",
+        "reason": "comparative reference to intake's file — written by career-engine-intake/SKILL.md Step 0.5, not by this doc"
+      }
+    ]
+  }
+}
