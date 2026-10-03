@@ -41,6 +41,16 @@ def docx_template(blob):
     placeholders={'Heading 1':'{{name}}','Subtitle':'{{tagline}}','PersonalDetails':'{{contact}}'}
     for part in doc.part.package.parts:
         if part.partname.startswith('/word/') and hasattr(part,'element'):
+            # A blank identity must not keep a clickable fictional email/URL.
+            # Unwrap hyperlink runs, then discard their obsolete relationships.
+            for link in list(part.element.findall('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}hyperlink')):
+                parent=link.getparent(); position=parent.index(link)
+                for child in list(link):
+                    parent.insert(position,child); position+=1
+                parent.remove(link)
+            for rel_id,relationship in list(part.rels.items()):
+                if relationship.reltype.endswith('/hyperlink'):
+                    del part.rels[rel_id]
             for paragraph in part.element.findall('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p'):
                 from docx.text.paragraph import Paragraph
                 p=Paragraph(paragraph,doc)

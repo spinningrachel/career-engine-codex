@@ -53,6 +53,8 @@ class ChatGPTTests(unittest.TestCase):
                 doc=Document(io.BytesIO(kit.read('templates/'+name+'.docx')))
                 self.assertNotIn('Homer',str(doc._element.xml))
                 self.assertNotIn('Vandelay',str(doc._element.xml))
+                for part in doc.part.package.parts:
+                    self.assertFalse(any(rel.reltype.endswith('/hyperlink') for rel in part.rels.values()),'Blank template retained a fictional contact link')
 
     def runtime(self,root):
         shutil.copy2(ROOT/'chatgpt/chatgpt_export.py',root/'chatgpt_export.py')
