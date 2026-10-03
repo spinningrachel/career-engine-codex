@@ -16,7 +16,7 @@ def main():
         raise SystemExit('Codex review blocked this update; inspect review-result.json')
     sha=json.loads((ROOT/'upstream-lock.json').read_text())['commit']
     title='Sync career-engine upstream '+sha[:12]
-    body=result['summary']+'\n\nUpstream commit: `'+sha+'`.\n\nValidation: native port tests, upstream export fixtures, personal-data guard, mechanical/parity QA, and archive scan passed. Live personal-data and connector workflows were not exercised.\n\nGenerated and reviewed by Codex; merge requires repository owner review.\n'
+    body=result['summary']+'\n\nUpstream commit: `'+sha+'`.\n\nValidation: native installation/package checks, ChatGPT kit and portable export fixtures, upstream export fixtures, personal-data guard, mechanical/parity QA, and archive scan passed. Live ChatGPT UI, personal-data, and connector workflows were not exercised.\n\nGenerated and reviewed by Codex; merge follows the configured automatic-merge policy and repository protections.\n'
     bodyfile=ROOT/'.sync-work/pr-body.md'
     bodyfile.write_text(body)
     base=run('git','rev-parse','HEAD',capture_output=True).stdout.strip()
@@ -27,7 +27,7 @@ def main():
     run('git','config','user.name','career-engine-codex[bot]')
     run('git','config','user.email','career-engine-codex[bot]@users.noreply.github.com')
     # Explicit paths: never stage arbitrary agent output, secrets, or workflows.
-    run('git','add','plugin','codex/overrides','tools/port.py','tests','upstream-lock.json','LICENSE','career-engine-codex.zip')
+    run('git','add','plugin','codex/overrides','tools/port.py','tests','upstream-lock.json','LICENSE','career-engine-codex.zip','career-engine-chatgpt.zip','chatgpt','README.md')
     run('git','commit','-m',title)
     # Lease against the remote branch observed immediately before updating it.
     remote=run('git','ls-remote','origin','refs/heads/sync/upstream',capture_output=True).stdout.strip()

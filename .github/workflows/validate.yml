@@ -1,4 +1,4 @@
-name: Validate Codex port
+name: Validate Codex and ChatGPT ports
 on:
   push:
     branches: [main]
@@ -19,5 +19,7 @@ jobs:
       - run: bash tools/validate.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: career-engine-codex
-          path: career-engine-codex.zip
+          name: career-engine-packages
+          path: |
+            career-engine-codex.zip
+            career-engine-chatgpt.zip

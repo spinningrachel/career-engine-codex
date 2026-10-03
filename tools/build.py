@@ -53,5 +53,10 @@ def package(output):
 
 if __name__=='__main__':
     ap=argparse.ArgumentParser()
-    ap.add_argument('--output',type=Path,default=ROOT/'career-engine-codex.zip')
-    package(ap.parse_args().output)
+    ap.add_argument('--output',type=Path,help='Build only the Codex archive at this path; omission builds both published packages')
+    args=ap.parse_args()
+    package(args.output or ROOT/'career-engine-codex.zip')
+    if args.output is None:
+        spec=importlib.util.spec_from_file_location('chatgpt_builder',ROOT/'tools/build-chatgpt.py')
+        builder=importlib.util.module_from_spec(spec); spec.loader.exec_module(builder)
+        builder.build(ROOT/'career-engine-chatgpt.zip')

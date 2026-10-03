@@ -51,6 +51,7 @@ def generate(source):
         path.write_text('---\nname: '+name+'\ndescription: Execute the '+agent.stem+' role in the Career Engine pipeline on Codex.\n---\n'+BOOT+'\nRead `${CAREER_ENGINE_ROOT}/agents/'+agent.name+'` and execute that role with the supplied inputs and file-based output protocol. Its frontmatter describes the upstream host; use the Codex runtime contract for tool access and role execution.\n')
     (target / 'CODEX-RUNTIME.md').write_text((ROOT / 'codex/runtime.md').read_text())
     (target / 'CODEX-QA.md').write_text((ROOT / 'codex/qa-plugin.md').read_text())
+    (target / 'UPDATE-CONTRACT.md').write_text((ROOT / 'codex/update-contract.md').read_text())
     (target / 'UPSTREAM.md').write_text('Source: https://github.com/spinningrachel/career-engine-claude\nCommit: '+commit+'\nMIT; original authorship preserved in LICENSE.\n')
     shutil.copy2(source / 'LICENSE', target / 'LICENSE')
     shutil.copy2(source / 'LICENSE', ROOT / 'LICENSE')

@@ -1,39 +1,68 @@
-# Career Engine for Codex
+# Career Engine for Codex and ChatGPT
 
-Codex-native packaging and runtime adapters for [Career Engine for Claude](https://github.com/spinningrachel/career-engine-claude). Career doctrine, reference templates, Python DOCX tools, and review gates are imported from the upstream commit recorded in `upstream-lock.json`. Codex-specific adapters and synchronization controls live outside generated `plugin/`.
+Career Engine's career doctrine, reference templates, roles, and review gates come from [Career Engine for Claude](https://github.com/spinningrachel/career-engine-claude), pinned in `upstream-lock.json`. This parallel repository adapts that source for Codex and for **both ChatGPT Custom GPTs and Projects**. All three installation paths are maintained on every update.
 
-**No real user career data belongs in either repository or plugin.** First-time users install and configure their own external **career-data** skill separately. These repositories contain code, instructions, blank templates, and fictional test fixtures only. Generated documents and update prompts go to an external output folder. Installation does not import a user's Claude configuration or career data.
+**Personal career data never belongs in either public repository or package.** First-time users install and configure their own external **career-data** skill separately. Packages contain instructions, code, blank templates, and fictional test fixtures. Updating an installation replaces shared materials and preserves the user's private career-data and outputs.
 
-## Install in Codex
+| Host | Installation | Package |
+|---|---|---|
+| Codex | Register the GitHub marketplace and install the native plugin | [career-engine-codex.zip](https://github.com/spinningrachel/career-engine-codex/raw/refs/heads/main/career-engine-codex.zip) — native plugin distribution |
+| ChatGPT Custom GPT | Extract the kit; paste GPT instructions and upload its three Knowledge files | [career-engine-chatgpt.zip](https://github.com/spinningrachel/career-engine-codex/raw/refs/heads/main/career-engine-chatgpt.zip) |
+| ChatGPT Project | Extract the same kit; paste Project instructions and add its three knowledge files | Same ChatGPT ZIP |
 
-Use a current Codex CLI with `codex plugin` support. The native format and local installation were checked with Codex CLI `0.159.0-alpha.3`.
+The ChatGPT ZIP is an installation kit. ChatGPT does not import it as a Codex plugin; follow the configuration steps below. Both ZIPs are committed at the repository root with the matching source.
+
+## Install in Codex — new users
+
+Install [Node.js](https://nodejs.org/) if needed, then install and sign in to the current [Codex CLI](https://developers.openai.com/codex/cli):
 
 ```sh
+npm install -g @openai/codex@latest
+codex login
 codex plugin marketplace add spinningrachel/career-engine-codex --ref main
 codex plugin add career-engine@cheyfitz-codex
+codex
 ```
 
-For a local checkout:
+Use a Codex version with `codex plugin` support; native installation was exercised with CLI `0.159.0-alpha.3`. In the new session, say: **“Use $career-engine-setup to configure my separate career-data skill.”** Supply your existing external skill if already configured. You can then invoke `$career-engine`, describe an operation, or use a specific skill such as `$source-open-roles`.
 
-```sh
-codex plugin marketplace add /absolute/path/to/career-engine-codex
-codex plugin add career-engine@cheyfitz-codex
-```
+For a local repository checkout, substitute `codex plugin marketplace add /absolute/path/to/career-engine-codex` for the GitHub registration command, then install the same plugin. Read [plugin/CODEX-RUNTIME.md](plugin/CODEX-RUNTIME.md) for paths, tools, roles, and prerequisites. DOCX export requires Python 3.10+, pandoc, python-docx, and lxml. Tracker workflows require connected Notion operations. Hook protection requires a supporting Codex host and enabled hooks; installation alone does not prove hooks ran.
 
-Start a new session after installation. Invoke `$career-engine`, describe the operation, or use a specific skill such as `$career-engine-setup` or `$source-open-roles`. The setup workflow prepares a **separate**, user-owned career-data skill; it never fills the shared plugin's templates. Follow `plugin/CODEX-RUNTIME.md` for file discovery, connectors, role execution, and host-specific differences.
-
-After an upstream update merges, refresh the marketplace and plugin, then start a new session:
+After an update merges, refresh the marketplace/plugin and start a new session:
 
 ```sh
 codex plugin marketplace upgrade cheyfitz-codex
 codex plugin add career-engine@cheyfitz-codex
+codex
 ```
 
-Each generated plugin version includes both the upstream commit and a Codex-adapter hash, so updates do not reuse a stale installation cache.
+Native versions include the upstream commit and adapter hash to avoid stale installation caches. Keep career-data and outputs outside this shared plugin.
 
-Python 3.10+, pandoc, python-docx, and lxml are required for DOCX export. Notion workflows additionally need a connected Notion integration with the required database operations. The plugin does not auto-connect external accounts. Codex plugin hook support and hook enablement are required for the pre-write personal-data and mid-run question guards. Build/repository scans remain mandatory whether hooks are available or not.
+## Install in ChatGPT — Custom GPT
 
-## Develop and verify
+1. Download [career-engine-chatgpt.zip](https://github.com/spinningrachel/career-engine-codex/raw/refs/heads/main/career-engine-chatgpt.zip) and extract it.
+2. Open the [GPT editor](https://chatgpt.com/gpts/editor). Creating/editing requires an eligible account and workspace permissions. In **Configure**, name the GPT **Career Engine** and paste **GPT-INSTRUCTIONS.txt** into **Instructions**.
+3. Upload the three **knowledge/*.txt** files as **Knowledge**. These public files preserve the career workflows, roles, reference templates, and host mappings. Keep personal career-data out of reusable GPT Knowledge.
+4. Enable **Data Analysis / Code Interpreter** for files and DOCX export, and **Web Search** for research, where offered. Save with **Only me** visibility.
+5. Open the GPT and say: **“Run first-time Career Engine setup. Help me configure my separate career-data skill and return its files as private downloads.”** Provide existing career-data privately in the conversation if already configured.
+6. For DOCX export, attach the needed **runtime/*.txt** and **templates/*.docx** files to the private conversation if Data Analysis cannot access them from Knowledge. The assistant materializes the Python helpers and checks dependencies before exporting.
+
+Optional Notion tracker support: import **actions/notion-openapi.json** into the GPT's **Actions** and configure secure **API Key / Bearer** authentication with your own Notion integration. Share the relevant database with that integration and verify its read/query/write operations. Never put credentials in chat, Knowledge, or this repository. Full instructions are in [chatgpt/install.md](chatgpt/install.md), also shipped as **START-HERE.md** inside the ZIP.
+
+## Install in ChatGPT — Project
+
+1. Extract the same [ChatGPT ZIP](https://github.com/spinningrachel/career-engine-codex/raw/refs/heads/main/career-engine-chatgpt.zip).
+2. Create a private **Career Engine** Project. In its **Project instructions/settings**, paste **PROJECT-INSTRUCTIONS.txt**.
+3. Add the three **knowledge/*.txt** files to the Project's files. The ZIP itself does not register a plugin.
+4. Start a chat **inside the Project** and say: **“Run first-time Career Engine setup using the Project instructions and knowledge. Keep my separately configured career-data and outputs private.”**
+5. Supply external career-data privately in that chat or as deliberately selected private Project files, separately from public kit files. Save generated career-data downloads in your own external folder.
+6. For DOCX export, use Data Analysis where available and attach the needed runtime helpers/templates to the chat. Use only web tools and connected apps actually available in the Project. Projects do not import Custom GPT Actions; tracker writeback requires an available tool with the necessary operations.
+
+Both ChatGPT routes support text setup, coaching, supplied-JD analysis, CV/letter drafting, and prescribed review passes. DOCX export requires Data Analysis plus python-docx/lxml; the kit's controlled-Markdown exporter works without pandoc. Web research and live tracker operations require their respective capabilities. ChatGPT does not gain Claude/Codex hooks, background agents, local/iCloud filesystem access, or exact history/token APIs from this package. Missing required capabilities remain explicit workflow blockers.
+
+To update either ChatGPT installation, download and extract the latest kit. Replace its public Instructions and three knowledge files in the GPT editor or Project settings; replace runtime/template files used for export. Remove old public copies, preserve separate private career-data and outputs, and start a new chat. Review and retest any changed optional Actions schema. `manifest.json` records the upstream commit, source coverage, and file hashes.
+
+## Develop, package, and verify
 
 ```sh
 python3 -m venv .venv
@@ -42,13 +71,11 @@ python3 -m pip install -r requirements.txt
 bash tools/validate.sh
 ```
 
-Install pandoc using the operating system's package manager if absent. Validation includes native port tests, upstream DOCX export fixtures, 45 personal-data guard cases, 11 question-gate cases, 512 mechanical checks, 26 relational checks, and personal-data scans over the full publishable repository and archive, including Office XML. Six Claude hook-format assertions are translated to native Codex equivalents; career-doctrine checks stay in place.
+Install pandoc through the operating system's package manager. QA covers native compatibility, ChatGPT source coverage and instruction budgets, reproducible archives, portable and upstream DOCX exports, 45 personal-data guard cases, 11 question-gate cases, 512 mechanical checks, 26 relational checks, and repository/archive scans including Office XML. Six Claude hook-format assertions are translated to Codex equivalents; the career-doctrine checks remain intact. Run `python3 tools/check-codex-compatibility.py --install` for actual CLI installation in an isolated test configuration.
 
-`python3 tools/build.py` produces **`career-engine-codex.zip` at the repository root**. Every plugin update commits that archive together with its matching source. Validation compares it byte-for-byte with a reproducible build, and the automatic sync stages the rebuilt archive. This is a ZIP distribution of the plugin directory, not a Claude `.plugin` upload; Codex installs through its marketplace. Test harnesses are omitted from the product archive. Repository scans inspect archives and their Office XML as well as loose files.
+Every update follows [codex/update-contract.md](codex/update-contract.md), included as **UPDATE-CONTRACT.md in both packages** and read by the QA role and automated Codex review. Review Codex and ChatGPT compatibility separately from upstream semantic parity. Maintain this README and the packaged installation guide for all three paths. Rebuild **both** root ZIPs with `python3 tools/build.py`; validation rejects stale archives rather than silently replacing them.
 
-The QA role's primary procedure is `plugin/CODEX-QA.md`: Codex installation, role/tool and path compatibility, hooks, external career-data, connectors, document execution, and sync behavior. The inherited QA document remains the supplemental career-doctrine catalog. Run `python3 tools/check-codex-compatibility.py --install` to exercise actual native CLI installation in an isolated test configuration. Reviews report Codex compatibility separately from upstream semantic parity; unrun live integrations are never counted as passing.
-
-To update manually:
+To import an upstream version manually:
 
 ```sh
 git clone https://github.com/spinningrachel/career-engine-claude.git /tmp/career-engine-upstream
@@ -57,7 +84,7 @@ python3 tools/build.py
 bash tools/validate.sh
 ```
 
-Generated `plugin/` files are never edited directly. Change `tools/port.py` for mechanical translation, or add a semantic override under `codex/overrides/` with the same relative path as the target plugin file. Regenerate and review the diff. `upstream-lock.json` hashes every generated file so accidental edits or stale outputs fail validation.
+Never hand-edit generated `plugin/`. Use `tools/port.py` for mechanical translations or `codex/overrides/` for semantic adaptations, then regenerate. ChatGPT adapters and its installation guide live in `chatgpt/`; `tools/build-chatgpt.py` packages all applicable generated doctrine with stable source labels. `upstream-lock.json` hashes generated native files; the ChatGPT manifest indexes every included source section. Commit both ZIPs, matching source, and any affected installation documentation.
 
 ## Automatic upstream updates
 
@@ -71,6 +98,6 @@ This is automation by a new Codex run on each update; it does not wake this chat
 
 ## Verified scope and limitations
 
-The initial port is verified for native plugin installation, role-skill packaging, native hook payload adaptation, fixture-based DOCX export, upstream doctrine QA, and packaging without personal data. There is no live-user career-data or Notion end-to-end validation in CI. Claude Desktop/Cowork installation and exact token-accounting/history-search APIs have no guaranteed Codex equivalent; see the runtime contract. Roles execute as distinct sequential passes by default, with delegation only where the host and invoked workflow allow it. Connected-tool names are discovered at runtime rather than copied from Claude.
+Offline validation covers actual native CLI installation, package/source integrity, hook payload adapters, fixture-based DOCX exports including the portable ChatGPT runtime, upstream doctrine QA, and personal-data scanning. It does **not** establish a live ChatGPT import/response, host hook enablement, authenticated Notion writes, or a personal career pipeline. These require the relevant account and separately authorized data/tools; unrun checks stay NOT RUN. Roles execute as distinct sequential passes unless the host and invoked workflow authorize delegation.
 
 MIT license; upstream authorship is retained.

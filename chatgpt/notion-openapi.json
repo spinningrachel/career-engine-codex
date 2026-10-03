@@ -1,0 +1,551 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Career Engine Notion Actions",
+    "version": "1.0.0",
+    "description": "Optional personal Custom GPT Actions. Configure your own Notion bearer credential securely; Project support uses its own available tools."
+  },
+  "servers": [
+    {
+      "url": "https://api.notion.com"
+    }
+  ],
+  "security": [
+    {
+      "notionBearer": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "notionBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "paths": {
+    "/v1/search": {
+      "post": {
+        "operationId": "searchNotion",
+        "summary": "Find pages or data sources shared with the integration",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "start_cursor": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/databases/{database_id}": {
+      "get": {
+        "operationId": "retrieveDatabase",
+        "summary": "Retrieve the database and discover its data source IDs",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          },
+          {
+            "name": "database_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_sources/{data_source_id}": {
+      "get": {
+        "operationId": "retrieveDataSource",
+        "summary": "Retrieve the actual data source schema",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          },
+          {
+            "name": "data_source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_sources/{data_source_id}/query": {
+      "post": {
+        "operationId": "queryDataSource",
+        "summary": "Query job-tracker rows with filters and pagination",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          },
+          {
+            "name": "data_source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filter": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {}
+                  },
+                  "sorts": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true,
+                      "properties": {}
+                    }
+                  },
+                  "start_cursor": {
+                    "type": "string"
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pages/{page_id}": {
+      "get": {
+        "operationId": "retrievePage",
+        "summary": "Retrieve one tracker row and its properties",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          },
+          {
+            "name": "page_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateTrackerPage",
+        "summary": "Update tracker properties after user-authorized pipeline work",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          },
+          {
+            "name": "page_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "properties": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {}
+                  },
+                  "archived": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "properties"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pages": {
+      "post": {
+        "operationId": "createTrackerPage",
+        "summary": "Create a tracker page only when the user authorizes the workflow",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parent": {
+                    "type": "object",
+                    "properties": {
+                      "data_source_id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "data_source_id"
+                        ],
+                        "default": "data_source_id"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "data_source_id"
+                    ]
+                  },
+                  "properties": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {}
+                  },
+                  "children": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true,
+                      "properties": {}
+                    }
+                  }
+                },
+                "required": [
+                  "parent",
+                  "properties"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/blocks/{block_id}/children": {
+      "get": {
+        "operationId": "readPageBlocks",
+        "summary": "Read tracker page body blocks",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          },
+          {
+            "name": "block_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "appendPageBlocks",
+        "summary": "Append page-body blocks after explicit workflow authorization",
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2025-09-03"
+              ],
+              "default": "2025-09-03"
+            }
+          },
+          {
+            "name": "block_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notion API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "children": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true,
+                      "properties": {}
+                    }
+                  }
+                },
+                "required": [
+                  "children"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

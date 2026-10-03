@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 tools/check-codex-compatibility.py
+python3 tools/check-chatgpt-compatibility.py
 python3 -m unittest discover -s tests -v
 python3 plugin/skills/career-engine-export/scripts/test_assemble_brief_cv.py
 bash plugin/scripts/test-personal-data-guard.sh
