@@ -5,6 +5,9 @@ import subprocess
 import tempfile
 import unittest
 import zipfile
+import importlib.util
+import io
+import shutil
 
 ROOT=Path(__file__).resolve().parents[1]
 PLUGIN=ROOT/'plugin'
@@ -55,8 +58,50 @@ class PortTests(unittest.TestCase):
                 names=z.namelist()
                 self.assertIn('.codex-plugin/plugin.json',names)
                 self.assertIn('CODEX-RUNTIME.md',names)
+                self.assertIn('CODEX-QA.md',names)
                 self.assertFalse(any(Path(n).name.startswith(('test-','test_')) for n in names))
                 self.assertFalse(any('.claude' in n for n in names))
+
+    def test_committed_archive_matches_reproducible_build(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive=Path(tmp)/'plugin.zip'
+            subprocess.run(['python3',str(ROOT/'tools/build.py'),'--output',str(archive)],check=True)
+            self.assertEqual(archive.read_bytes(),(ROOT/'career-engine-codex.zip').read_bytes(),'Plugin archive is stale; rebuild and commit it with the source')
+
+    def test_native_path_rejects_missing_and_escaping_components(self):
+        spec=importlib.util.spec_from_file_location('native_qa',ROOT/'tools/check-codex-compatibility.py')
+        native_qa=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(native_qa)
+        self.assertEqual(native_qa.native_path(PLUGIN,'./skills'),PLUGIN/'skills')
+        for value in ('skills','./missing-component','./../README.md'):
+            with self.subTest(value=value),self.assertRaises(ValueError):
+                native_qa.native_path(PLUGIN,value)
+
+    def test_qa_entrypoints_focus_on_codex_compatibility(self):
+        for p in [PLUGIN/'skills/role-qa-plugin/SKILL.md',PLUGIN/'agents/qa-plugin.md']:
+            text=p.read_text()
+            self.assertIn('CODEX-QA.md',text,p)
+            self.assertIn('Codex compatibility',text,p)
+        self.assertIn('CODEX-QA.md',(ROOT/'codex/sync-review.md').read_text())
+
+    def test_repository_scan_rejects_user_data_inside_archived_office_xml(self):
+        spec=importlib.util.spec_from_file_location('repo_scan',ROOT/'tools/scan-repo.py')
+        repo_scan=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(repo_scan)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            subprocess.run(['git','init','-q',str(root)],check=True)
+            (root/'plugin/scripts').mkdir(parents=True)
+            shutil.copy2(PLUGIN/'scripts/personal_data_detect.py',root/'plugin/scripts/personal_data_detect.py')
+            office=io.BytesIO()
+            with zipfile.ZipFile(office,'w') as z:
+                z.writestr('word/document.xml','<p>output_folder: /U'+'sers/fixture/Documents/out</p>')
+            with zipfile.ZipFile(root/'product.zip','w') as z:
+                z.writestr('references/template.docx',office.getvalue())
+            repo_scan.ROOT=root
+            with self.assertRaises(SystemExit) as failure:
+                repo_scan.scan()
+            self.assertIn('product.zip!references/template.docx',str(failure.exception))
 
     def test_question_gate_understands_codex_transcript(self):
         hook=PLUGIN/'scripts/codex-question-gate.py'

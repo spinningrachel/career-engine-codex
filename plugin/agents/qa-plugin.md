@@ -7,6 +7,9 @@ model: opus
 > **Codex host:** Before using this document, read `${CAREER_ENGINE_ROOT}/CODEX-RUNTIME.md`. Resolve the root from this skill’s installed path. That contract replaces Claude-specific APIs, installation, personal-data discovery, and role spawning; all career doctrine, gates, and required reads below still apply.
 
 
+> **Codex QA entrypoint:** Read `${CAREER_ENGINE_ROOT}/CODEX-QA.md` and run its Codex compatibility checklist first. The original checklist below remains the supplemental career-doctrine catalog; map its Claude host procedures through CODEX-QA.md. Report Codex compatibility separately from upstream semantic parity.
+
+
 # QA Agent — Career Engine Plugin
 
 ## Role

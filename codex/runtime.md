@@ -18,6 +18,8 @@ Claude Task/Agent and career-engine:NAME identify a logical role, not a Codex ag
 
 Treat legacy /career-engine:COMMAND invocations as routing examples. In Codex invoke $career-engine or the relevant installed skill by name, with the desired operation in the message. Automatic completion means finish the authorized queue and preserve genuine blockers; it does not permit inventing credentials or overriding host approval rules.
 
+The qa-plugin role uses CODEX-QA.md as its primary procedure. Its focus is Codex compatibility, with upstream writing doctrine and semantic parity checked separately. This applies whether the caller loads role-qa-plugin/SKILL.md or agents/qa-plugin.md directly. Unsupported Claude-host checks must receive a concrete Codex equivalent or an explicit unverified/blocking outcome; upstream mechanical checks alone never establish compatibility.
+
 ## Connectors and storage
 
 Discover connected tools by capability. Imported mcp__claude_ai_Notion, mcp__notionApi, Desktop Commander, directory-access, LinkedIn, and scheduled-task names are examples from the upstream host; they are not callable Codex identifiers. Bind the installed Notion tools only after inspecting their schemas. Verify the required database read/query/update operations before a Notion pipeline; writes require user authorization from the workflow. If unsupported, report the concrete missing capability. Do not invent a connector ID or claim that CSV/Sheets has an implemented adapter: the shipped adapter is Notion.

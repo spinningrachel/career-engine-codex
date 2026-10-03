@@ -44,13 +44,16 @@ bash tools/validate.sh
 
 Install pandoc using the operating system's package manager if absent. Validation includes native port tests, upstream DOCX export fixtures, 45 personal-data guard cases, 11 question-gate cases, 512 mechanical checks, 26 relational checks, and personal-data scans over the full publishable repository and archive, including Office XML. Six Claude hook-format assertions are translated to native Codex equivalents; career-doctrine checks stay in place.
 
-`python3 tools/build.py` produces `dist/career-engine-codex.zip`. This is a ZIP distribution of the plugin directory, not a Claude `.plugin` upload; Codex installs through its marketplace. Test harnesses are omitted from the product archive.
+`python3 tools/build.py` produces **`career-engine-codex.zip` at the repository root**. Every plugin update commits that archive together with its matching source. Validation compares it byte-for-byte with a reproducible build, and the automatic sync stages the rebuilt archive. This is a ZIP distribution of the plugin directory, not a Claude `.plugin` upload; Codex installs through its marketplace. Test harnesses are omitted from the product archive. Repository scans inspect archives and their Office XML as well as loose files.
+
+The QA role's primary procedure is `plugin/CODEX-QA.md`: Codex installation, role/tool and path compatibility, hooks, external career-data, connectors, document execution, and sync behavior. The inherited QA document remains the supplemental career-doctrine catalog. Run `python3 tools/check-codex-compatibility.py --install` to exercise actual native CLI installation in an isolated test configuration. Reviews report Codex compatibility separately from upstream semantic parity; unrun live integrations are never counted as passing.
 
 To update manually:
 
 ```sh
 git clone https://github.com/spinningrachel/career-engine-claude.git /tmp/career-engine-upstream
 python3 tools/port.py --source /tmp/career-engine-upstream
+python3 tools/build.py
 bash tools/validate.sh
 ```
 

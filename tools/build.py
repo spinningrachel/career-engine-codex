@@ -53,5 +53,5 @@ def package(output):
 
 if __name__=='__main__':
     ap=argparse.ArgumentParser()
-    ap.add_argument('--output',type=Path,default=ROOT/'dist/career-engine-codex.zip')
+    ap.add_argument('--output',type=Path,default=ROOT/'career-engine-codex.zip')
     package(ap.parse_args().output)
