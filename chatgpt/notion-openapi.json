@@ -27,7 +27,7 @@
     "/v1/search": {
       "post": {
         "operationId": "searchNotion",
-        "summary": "Find databases or pages shared with the integration",
+        "summary": "Find pages or data sources shared with the integration",
         "parameters": [
           {
             "name": "Notion-Version",
@@ -49,7 +49,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -113,7 +114,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -154,7 +156,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -195,7 +198,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -210,13 +214,15 @@
                 "properties": {
                   "filter": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "properties": {}
                   },
                   "sorts": {
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "additionalProperties": true
+                      "additionalProperties": true,
+                      "properties": {}
                     }
                   },
                   "start_cursor": {
@@ -267,7 +273,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -306,7 +313,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -321,7 +329,8 @@
                 "properties": {
                   "properties": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "properties": {}
                   },
                   "archived": {
                     "type": "boolean"
@@ -361,7 +370,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -379,21 +389,31 @@
                     "properties": {
                       "data_source_id": {
                         "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "data_source_id"
+                        ],
+                        "default": "data_source_id"
                       }
                     },
                     "required": [
+                      "type",
                       "data_source_id"
                     ]
                   },
                   "properties": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "properties": {}
                   },
                   "children": {
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "additionalProperties": true
+                      "additionalProperties": true,
+                      "properties": {}
                     }
                   }
                 },
@@ -455,7 +475,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -494,7 +515,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "properties": {}
                 }
               }
             }
@@ -511,7 +533,8 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "additionalProperties": true
+                      "additionalProperties": true,
+                      "properties": {}
                     }
                   }
                 },
