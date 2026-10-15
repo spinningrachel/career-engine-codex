@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import shlex
 from pathlib import Path
 import shutil
 import subprocess
@@ -19,6 +20,35 @@ def add_bootstrap(text):
         end = text.index('\n---', 4) + 4
         return text[:end] + '\n' + BOOT + text[end:]
     return BOOT + text
+
+def preserve_stop_policy(source, target):
+    # Codex has no prompt Stop hook. Preserve its career policy as required
+    # runtime guidance instead of dropping it with the Claude hook API.
+    upstream_hooks = json.loads((source / 'hooks/hooks.json').read_text())
+    stop_prompts = [translate(h['prompt'])
+                    for group in upstream_hooks.get('hooks', {}).get('Stop', [])
+                    for h in group['hooks'] if h.get('type') == 'prompt']
+    if not stop_prompts:
+        raise RuntimeError('Upstream Stop policy missing; review required')
+    policy_path = 'references/upstream-stop-policy.md'
+    (target / policy_path).write_text(
+        '# Upstream queue-completion policy\n\n'
+        'Read and apply this policy through CODEX-RUNTIME.md. The quoted upstream '
+        'prompt is instruction-level guidance on Codex, not an installed Stop hook. '
+        'Claude tool names and response JSON describe the upstream host; continue '
+        'the authorized queue using available Codex tools and preserve genuine blockers.\n\n'
+        + '\n\n'.join(stop_prompts) + '\n')
+    # Keep relational assertions checking the actual preserved policy. Only
+    # references to the replaced hook file move; all terms and siblings remain.
+    parity_path = target / 'scripts/qa-parity.json'
+    parity = json.loads(parity_path.read_text())
+    for assertion in parity.get('defined_terms', []):
+        if 'hooks/hooks.json' in assertion['files']:
+            if assertion['term'].lower() not in '\n'.join(stop_prompts).lower():
+                raise RuntimeError('Unmapped upstream hook assertion: ' + assertion['id'])
+            assertion['files'] = [policy_path if f == 'hooks/hooks.json' else f
+                                  for f in assertion['files']]
+    parity_path.write_text(json.dumps(parity, indent=2) + '\n')
 
 def generate(source):
     source = source.resolve()
@@ -71,6 +101,7 @@ def generate(source):
     (target / 'hooks/hooks.json').write_text(json.dumps(hook,indent=2)+'\n')
     shutil.copy2(ROOT / 'codex/personal-data-hook.py', target / 'scripts/codex-personal-data-hook.py')
     shutil.copy2(ROOT / 'codex/question-gate.py', target / 'scripts/codex-question-gate.py')
+    preserve_stop_policy(source, target)
     # Keep all career-doctrine assertions. Replace six Claude hook API assertions
     # with their native equivalents; an upstream assertion change stops generation.
     qa=target/'scripts/qa-mechanical.sh'
@@ -88,6 +119,14 @@ def generate(source):
         if len(found)!=1:
             raise RuntimeError('Upstream host-hook assertion changed; review required: '+needle)
         lines[found[0]]=replacement
+    # New doctrine checks can cite the Stop prompt too. Preserve each check's
+    # pattern and count, pointing literal policy checks at the retained text.
+    policy = (target / 'references/upstream-stop-policy.md').read_text()
+    for i, line in enumerate(lines):
+        if line.startswith('expect_ge ') and '"hooks/hooks.json"' in line:
+            args = shlex.split(line)
+            if len(args) == 5 and args[3] in policy:
+                lines[i] = line.replace('"hooks/hooks.json"', '"references/upstream-stop-policy.md"', 1)
     qa.write_text('\n'.join(lines)+'\n')
     overrides = ROOT / 'codex/overrides'
     if overrides.exists():
