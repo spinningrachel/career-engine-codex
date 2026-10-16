@@ -801,6 +801,16 @@ Mechanized: covered by scripts/qa-mechanical.sh (CHECK 35d) — run via the Mech
 
 **FAIL condition:** any "must be >= N" count below its stated requirement, or the disproven-doctrine grep is nonzero.
 
+### Check 35e — Prioritization runs with zero human input (2026-10-14, per the user; second instance 2026-10-15)
+
+**Second instance (2026-10-15, IO River):** one day after the fix, a run classified a LinkedIn URL carrying `currentJobId=` as "a company overview" from an `Edit notes` line, never ran the LinkedIn rungs on the job ID (the extraction rule knew only `/jobs/view/`), and answered the user's correction with "paste the JD text or the role title." Verify the three rules now exist: intake Step 0.5's job-ID forms (`currentJobId=<JOBID>`, `IS a job listing`), the prioritizer's URL-class-from-the-URL rule (`never from a note`), and the follow-up-turn rule (`A follow-up turn is still the run`); the battery denies the exact follow-up wording.
+
+A confirmed production failure: a real Prioritization run fetched six `New` roles and wrote nothing to the tracker — a correctly-returned tier label (`Fifth`) was held instead of converted to `6`, a closed role and two non-listing URLs were offered back as "Duplicate or Position Closed instead of scoring," and three LinkedIn-blocked roles were offered a "paste the three JDs here" path. Per the user: "This is supposed to be a simple automated process that needs no human input." Verify `agents/role-prioritizer.md` carries the Prioritization outcome table (every fetch outcome → one write + one summary line), the label-to-number conversion at Step 2.3 and in the scores-only caller contract, the skipped-role `JD Fetch Status` write (Step 2.1 skips only — never the archived/changed row), "This report ends the run" at Step 4, and the named anti-pattern; that the skill's Autonomy section, the Stop hook prompt, and the `AskUserQuestion` gate's `INPUT_ASK` pattern all name the same rule. Judgment half: the `no-public-jd` and user-declared open-application rows must agree with intake Step 0.45, the coach, and coach-gates item 14 (`Unfetchable`, never `Fetched`, no `JD Body`), and no sentence in the agent file may give any fetch outcome an "ask the user" disposition. **2026-10-15 amendments:** the closure evidence rule is defined once (`skills/database/SKILL.md`) and the prioritizer's closed row, intake's `closed-confirmed` tag, and Step 0.9d's `Closed` write all cite it with the same evidence bar (explicit closed statement, or 404/410 plus careers-index absence — a bare redirect is only "possibly closed"); `LinkedIn-blocked`/`Unfetchable` require the search rungs to have run and the report line to name them; the LinkedIn guest-endpoint rung exists at intake Step 0.5 step 1.5; setup's Status option list includes `Closed`.
+
+Mechanized: covered by scripts/qa-mechanical.sh (CHECK 35e) — run via the Mechanical battery step; do not re-run these greps by hand. The gate battery (`scripts/test-ask-question-gate.sh`) is run separately and must pass.
+
+**FAIL condition:** any "must be >= N" count below its stated requirement, the gate battery failing, or (judgment) an outcome in the agent file whose write is a question to the user.
+
 ### Check 38 — Mechanical word count enforced, not self-estimated (2026-07-02 fix)
 
 A live production run had every writer self-report a word count 20-40 words under the true figure (measured via `wc -w`); two letters shipped over the 320 cap as a direct result. Fixed by giving letter-writer and gatekeeper Bash access and requiring a mechanical `wc -w` count instead of an LLM estimate.
@@ -1065,6 +1075,32 @@ For each finding, report: the step reference, the failure type (from the list be
 **FAIL condition:** any finding of type F1–F7. Type F7 is advisory — report it, do not FAIL on it. F8 is FAIL.
 
 **F8 note:** this was the failure mode on 2026-06-17 when the orchestrator asked "How should I scope this New Applications run?" instead of declaring the queue and proceeding. The instruction said "report the queue and proceed immediately" but did not say the report was a one-way declaration — so the agent asked. Any step with similar structure is F8.
+
+### Check 72 — Frontmatter parses as YAML in every shipped .md that carries one (2026-10-15)
+
+The Desktop app's plugin installer refused a shipped build outright: "saving file 'agents/career-coach.md' would remove its frontmatter ... because its frontmatter is not valid YAML." The description line carried unescaped inner double quotes inside a double-quoted scalar, two skill descriptions carried an unquoted `: ` sequence, and the retired humanizer's banner sat above its frontmatter (which hid the block from the platform and cost the agent its tool allowlist). No layer parsed frontmatter — every check was a grep. `scripts/check-frontmatter.py` is the parse: every shipped `.md` that opens with `---` must load as a YAML mapping with no duplicate keys (PyYAML keeps the last value silently; the JavaScript readers installers use reject duplicates); agents (`agents/*.md`) and skills (`skills/*/SKILL.md`) must additionally open with the block on line 1 and carry non-empty `name` and `description`. It runs in the pre-commit hook, the build's pre-build gate, and here against the unzipped artifact — always the repo's own copy of the script, never one inside the target, so a stale artifact copy cannot override the verdict. PyYAML is a maintainer dependency (exit 2 = the gate could not run, reported distinctly from a parse failure); it is not a user prerequisite.
+
+Mechanized: covered by scripts/qa-mechanical.sh (CHECK 72) — run via the Mechanical battery step; do not re-run by hand.
+
+**FAIL condition:** the parse fails on any frontmatter-bearing `.md` in the repo or the artifact, the gate exits 2, or any of the three call sites (build, pre-commit, qa-mechanical — each asserted by a text count) no longer invokes the script. A description that needs a colon-space or an inner quote is written as a double-quoted scalar with inner double quotes replaced by single quotes.
+
+**Companion install-blocker, same day (mechanized in Check 21t):** `.claude-plugin/plugin.json` must carry no `hooks` key. Claude Code loads `hooks/hooks.json` automatically; a manifest entry naming it again fails the whole plugin load with "Duplicate hooks file detected" — confirmed on the user's first marketplace install after the frontmatter fix. Any extra hook file would be named there; the standard one never is.
+
+### Check 71 — Capability profile: function fit is coverage, not titles (2026-10-15, per the user)
+
+Per the user, job titles are changing across the market for every user, so the Prioritization pipeline must not pin function fit to a title list. Verify: the blank template `references/capability-profile.md` exists with `{{...}}` placeholders only; `skills/career-coach/coach-capability-profile.md` carries the full procedure (extract, strip to capability, three-way test, portability test, pairwise de-duplication, group and cap, self-check, show once, wait for confirmation, deliver by invocation); `agents/role-prioritizer.md` resolves the profile at Step 0, scores function fit as coverage at Step 2.3 with the title list advisory and the department not a criterion, falls back to the title-based read with a Step 4 notice when the profile is absent, and never generates or edits the profile itself; the coach's Option 6 and setup Phase 4 are the only generators, and both confirm before packaging. Judgment half: no file may let the prioritizer draft the profile, package it unconfirmed, or treat a missing profile as a stop; the profile must appear in the handoff tree, the structure contract, and REFERENCES.md; and `target_titles` must remain the sourcing input.
+
+Mechanized: covered by scripts/qa-mechanical.sh (CHECK 71) and the `term-capability-profile` parity set — run via the Mechanical battery step; do not re-run these greps by hand.
+
+**FAIL condition:** any "must be >= N" count below its stated requirement, the parity set failing, or (judgment) a generator path without the confirmation step or a consumer path that treats the absent profile as a blocker.
+
+### Check 70 — Role-tailoring plan wired end-to-end (2026-09-17; entry added 2026-10-14 — the mechanization shipped without one)
+
+Verify the role-tailoring plan (`CV Titles` written by the coach at intake, `CV Title Preferences` never written by any agent, Step 0.titles / E0.titles resolving both into `$PIPE/cv-titles.md`, `CV_TITLES_PATH` on every cv-writer / gatekeeper CV Check / recruiter-reviewer spawn, Gate 6 and coach-gates item 15 enforcing) is present in every file the CLAUDE.md contract row names.
+
+Mechanized: covered by scripts/qa-mechanical.sh (CHECK 70) and the `term-role-tailoring-plan` parity set — run via the Mechanical battery step; do not re-run these greps by hand.
+
+**FAIL condition:** any "must be >= N" count below its stated requirement, or the parity set failing.
 
 ### Check 67 — Trace-a-run (semantic pass, 2026-07-13 addition)
 

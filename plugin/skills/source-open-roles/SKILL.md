@@ -68,6 +68,7 @@ Source selection is layered, not mode-based. Every run starts with the full Tier
 | Indeed | Core board |
 | Glassdoor | Core board |
 | BuiltIn | Core board |
+| ChoppingBlock (AI jobs) | Core board — AI/ML-company roles, all functions |
 | Crunchbase | Company intelligence |
 | PitchBook | Company intelligence |
 | Tracxn | Company intelligence |
@@ -186,6 +187,7 @@ All fetched via `WebSearch` using the pattern: `site:<domain> "[title]" [time si
 | Site | Fetch method |
 |---|---|
 | startup.jobs | Prefer `mcp__startup-jobs__search_jobs` (keyword/role/country/remote/employment-type filters) + `mcp__startup-jobs__get_job` for full listing detail, if Gate 2's connection check found it connected (per `${CAREER_ENGINE_ROOT}/references/job-sourcing-mcp-registry.md` — structured, no scraping; both tools are granted in this agent's own frontmatter). **Gate:** if not connected, fall back to `WebFetch("https://startup.jobs/?q=[title-urlencoded]&remote=true")` — the run header already noted the unconnected server at Gate 2, no need to repeat it here. |
+| ChoppingBlock (Tier 1 — every run) | `WebFetch("https://www.choppingblock.ai/jobs?q=[title-urlencoded]")` — server-rendered, keyword search works (verified 2026-10-03, returns PMM listings). Optional filters: `&remote=`, `&country=`, `&seniority=`. Fallback `WebSearch("site:choppingblock.ai [title]")`. AI-native companies only. |
 | MoaiJobs | `WebFetch("https://www.moaijobs.com/")` + `WebSearch("site:moaijobs.com [title]")` |
 | CareerVault | `WebFetch("https://careervault.io/")` + `WebSearch("site:careervault.io [title]")` |
 
@@ -228,6 +230,7 @@ Use these to surface roles posted directly on company career pages via their ATS
 |---|---|
 | MoaiJobs | See Startup section |
 | CareerVault | See Startup section |
+| ChoppingBlock | See Startup section |
 | PitchMeAI | See Remote section |
 | TheirStack | Requires `mcp__theirstack__*` tools. Gate: if not connected, skip and note. |
 
@@ -296,7 +299,7 @@ Before scoring and displaying results, filter out any role that already exists i
 
 **Resolve the database id from the main config — one place to configure it.** Use `database_id` (legacy `notion_database_id`) from `${CAREER_DATA}/references/pipeline-preferences.json` — the same source every other pipeline reads. Everywhere below, the database id means this resolved value.
 
-**How to check:** Query the active applications via the **Notion adapter** (`${CAREER_ENGINE_ROOT}/skills/database-notion/SKILL.md` → §2 read ladder, loaded when `database_backend` is `notion`; on Path B use the adapter's §3 view discovery to resolve a broad view such as "All Active Applications"). Extract the `Company` + `Position` pairs from the result — but if the returned table is misaligned (row/column counts don't match, cells empty where neighbours are not), do not parse it: log a warning, skip dedup for this run, and note in the results that duplicates were not filtered. A skipped dedup is recoverable; a mispaired Company/Position exclusion silently hides a real role. Extract all `Company` + `Position` pairs. For each search result: if `(company name, role title)` matches any existing pair (case-insensitive, substring match on title), exclude it from results. Log the count of excluded duplicates.
+**How to check:** Query **every row, whatever its Status — closed rows included (2026-10-15, per the user: dedup "should include" closed roles)** via the **Notion adapter** (`${CAREER_ENGINE_ROOT}/skills/database-notion/SKILL.md` → §2 read ladder, loaded when `database_backend` is `notion`) **in its all-rows mode (`target status = ALL`, defined in §2)**: Paths A1/A2 run with no Status filter; Path B resolves, through §3 view discovery, a view with no Status filter (one named "All", "All Applications", or similar) — a view whose saved filter hides `Closed` rows, such as an "active applications" view, is not acceptable for this step, since a closed role that is re-posted would come back as a new suggestion. If the adapter returns `all-rows unavailable` (Path B, no unfiltered view in the tracker), skip dedup for this run with the existing warning plus one line naming the fix: "add a view with no Status filter, e.g. 'All Applications', to enable deduplication." — never halt the sourcing run over it. Capture each row's `Status` alongside `Company` + `Position`. Extract the `Company` + `Position` pairs from the result — but if the returned table is misaligned (row/column counts don't match, cells empty where neighbours are not), do not parse it: log a warning, skip dedup for this run, and note in the results that duplicates were not filtered. A skipped dedup is recoverable; a mispaired Company/Position exclusion silently hides a real role. Extract all `Company` + `Position` pairs. For each search result: if `(company name, role title)` matches any existing pair (case-insensitive, substring match on title), exclude it from results — a match on a `Closed` (or `Position Closed`/`Role Closed`) row is excluded the same way, counted separately as "previously closed", so the report shows how many re-posts of closed roles were seen without re-surfacing them. Log both counts.
 
 If no database id resolves, skip dedup and display a warning: "Deduplication skipped — no database ID configured. Run /career-engine:setup to configure."
 

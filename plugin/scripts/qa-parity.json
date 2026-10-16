@@ -303,6 +303,45 @@
       "_comment": "2026-09-15: JD Fetch Status's Manual-entry value must stay defined in both coach-side files (added 2026-08-13, once already missed from one of the two). Deliberately NOT required in agents/role-prioritizer.md \u2014 that agent's three-value list (Fetched/LinkedIn-blocked/Unfetchable) is correct as-is; Prioritization has no interactive path to produce Manual-entry. See career-coach.md's parity note."
     },
     {
+      "id": "term-closure-evidence",
+      "_comment": "2026-10-15, per the user (\"if the position closed then that's the update. It should be automatic.\"): one closure rule, defined once in skills/database/SKILL.md, consumed by the prioritizer's outcome table and intake Step 0.5/0.9d, described in CLAUDE.md. A consumer that re-describes the evidence bar drifts; a rename disconnects the write from its rule.",
+      "term": "closure evidence",
+      "files": [
+        "skills/database/SKILL.md",
+        "agents/role-prioritizer.md",
+        "skills/career-engine-intake/SKILL.md",
+        "skills/career-engine-edit/SKILL.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "id": "term-capability-profile",
+      "_comment": "2026-10-15, per the user: function fit in the Prioritization pipeline is responsibility coverage against the coach-derived capability profile, never a title match. The file name is the contract: the prioritizer resolves it, the coach generates it under coach-capability-profile.md, setup writes it at Phase 4, the handoff tree and structure contract list it, and the CLAUDE.md row and glossary describe it. A rename in one place silently disconnects consumer from producer.",
+      "term": "capability-profile.md",
+      "files": [
+        "agents/role-prioritizer.md",
+        "skills/role-prioritizer/SKILL.md",
+        "skills/career-coach/coach-capability-profile.md",
+        "agents/career-coach.md",
+        "skills/career-engine-setup/SKILL.md",
+        "references/career-data-skill-handoff.md",
+        "references/career-data-structure.md",
+        "references/REFERENCES.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "id": "term-prioritization-outcome-table",
+      "_comment": "2026-10-14, per the user (\"This is supposed to be a simple automated process that needs no human input.\"): a real Prioritization run wrote nothing and ended with three questions (a Fifth label held instead of written as 6; closed/non-listing roles offered for reclassification; LinkedIn-blocked roles offered a paste-the-JD path). The agent's Prioritization outcome table gives every fetch outcome one write and one summary line; the skill, the Stop hook prompt, and the CLAUDE.md contract row cite it by that name. A rename in one place silently disconnects the hook's reason text from the doctrine it enforces.",
+      "term": "Prioritization outcome table",
+      "files": [
+        "agents/role-prioritizer.md",
+        "skills/role-prioritizer/SKILL.md",
+        "references/upstream-stop-policy.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
       "id": "term-role-tailoring-plan",
       "_comment": "2026-09-17, per the user's direct instruction: each CV is tailored to one role \u2014 titles aligned (Retitle default / Descriptor / Keep / Fold), unrelated employers folded by name into the aggregation line, the whole CV written at the target role's level, inside four fixed honesty limits. The coach writes the plan (CV Titles) at intake; the user's own CV Title Preferences field is never written by any agent; both pipelines resolve it once (Step 0.titles / E0.titles) into $PIPE/cv-titles.md; cv-writer executes verbatim; Gate 6 and coach-gates item 15 enforce. Every file below must keep naming the plan.",
       "term": "role-tailoring plan",
@@ -319,6 +358,16 @@
         "skills/career-engine-new-application/SKILL.md",
         "skills/career-engine-edit/SKILL.md",
         "skills/database/SKILL.md"
+      ]
+    },
+    {
+      "id": "term-linkedin-job-id-forms",
+      "_comment": "2026-10-15 (IO River run): the LinkedIn job ID is carried in several URL shapes; intake Step 0.5 defines the forms, the coach's own ladder rung 0 and the prioritizer's URL-class rule must name the same query-string form so no ladder reverts to /jobs/view/ only.",
+      "term": "currentJobId",
+      "files": [
+        "skills/career-engine-intake/SKILL.md",
+        "agents/career-coach.md",
+        "agents/role-prioritizer.md"
       ]
     }
   ],

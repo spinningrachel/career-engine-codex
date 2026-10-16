@@ -13,6 +13,51 @@ ROOT=Path(__file__).resolve().parents[1]
 PLUGIN=ROOT/'plugin'
 
 class PortTests(unittest.TestCase):
+    def test_closed_outcome_does_not_regress_in_historical_example(self):
+        text=(PLUGIN/'agents/role-prioritizer.md').read_text()
+        example=text.split('Named anti-pattern: the 2026-10-14',1)[1].split('Named anti-pattern: the 2026-10-15',1)[0]
+        self.assertIn('confirmed-closed role gets `JD Fetch Status = Unfetchable` and `Status =',example)
+        self.assertNotIn('the closed role gets `JD Fetch Status = Unfetchable`, stays `New`',example)
+
+    def test_frontmatter_parser_rejects_invalid_and_duplicate_yaml(self):
+        checker=PLUGIN/'scripts/check-frontmatter.py'
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'skills/fixture').mkdir(parents=True)
+            skill=root/'skills/fixture/SKILL.md'
+            for block,expected in [
+                ('name: fixture\ndescription: "A valid: quoted description"',0),
+                ('name: fixture\ndescription: unquoted: mapping',1),
+                ('name: fixture\ndescription: first\ndescription: second',1),
+                ('name: fixture',1),
+            ]:
+                with self.subTest(block=block):
+                    skill.write_text('---\n'+block+'\n---\nFixture doctrine.\n')
+                    result=subprocess.run(['python3',str(checker),str(root)],capture_output=True,text=True)
+                    self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+
+    def test_prioritization_questions_preserve_run_and_blocker_boundaries(self):
+        hook=PLUGIN/'scripts/codex-question-gate.py'
+        spawn={'type':'assistant','message':{'content':[{'type':'tool_use','name':'Agent','input':{'subagent_type':'career-engine:role-prioritizer'}}]}}
+        # Retained upstream agent records and native shell records may coexist
+        # in imported session history; user-pasted records never count.
+        shell={'type':'response_item','payload':{'type':'function_call','name':'functions.exec_command','arguments':json.dumps({'cmd':'cat /tmp/run/_pipeline/state.json'})}}
+        with tempfile.TemporaryDirectory() as tmp:
+            transcript=Path(tmp)/'transcript.jsonl'
+            for events,question,deny in [
+                ([spawn,shell],'LinkedIn fetch failed. Paste the JD text or the role title?',True),
+                ([spawn,shell],'I am holding off writing Fifth. Which number should I write?',True),
+                ([spawn,shell],'database_id is missing. How should I proceed?',False),
+                ([{'type':'user','message':spawn['message']}],'Paste the JD text?',False),
+                ([], 'Position closed: your call?',False),
+            ]:
+                with self.subTest(question=question,deny=deny):
+                    transcript.write_text(''.join(json.dumps(e)+'\n' for e in events))
+                    payload={'tool_name':'functions.request_user_input_async','tool_input':{'questions':[{'title':question}]},'transcript_path':str(transcript)}
+                    result=subprocess.run(['python3',str(hook)],input=json.dumps(payload),capture_output=True,text=True,check=True)
+                    decision=json.loads(result.stdout)['hookSpecificOutput']['permissionDecision'] if result.stdout else 'allow'
+                    self.assertEqual(decision,'deny' if deny else 'allow')
+
     def test_stop_policy_retains_and_enforces_upstream_parity(self):
         spec=importlib.util.spec_from_file_location('port',ROOT/'tools/port.py')
         port=importlib.util.module_from_spec(spec)
