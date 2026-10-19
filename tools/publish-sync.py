@@ -4,11 +4,36 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
+import time
 
 ROOT=Path(__file__).resolve().parents[1]
 
 def run(*args,**kwargs):
-    return subprocess.run(args,cwd=ROOT,check=True,text=True,**kwargs)
+    captured = kwargs.pop('capture_output', False)
+    read_remote = args[:2] == ('git','ls-remote') or args[:3] in (('gh','pr','list'), ('gh','pr','view'))
+    transient = ('could not resolve host', 'temporary failure in name resolution',
+                 'eai_again', 'connection timed out', 'failed to connect', 'connection reset')
+    for attempt in range(3):
+        try:
+            result = subprocess.run(args,cwd=ROOT,check=True,text=True,capture_output=True,timeout=120,**kwargs)
+        except subprocess.CalledProcessError as exc:
+            message = exc.stderr or ''
+            token = os.environ.get('GH_TOKEN')
+            if token:
+                message = message.replace(token, '***')
+            print(message, file=sys.stderr)
+            if read_remote and attempt < 2 and any(term in message.lower() for term in transient):
+                time.sleep(2 ** (attempt + 1))
+                continue
+            raise
+        except subprocess.TimeoutExpired:
+            print('Command exceeded the 120-second publishing limit.', file=sys.stderr)
+            raise
+        if not captured:
+            print(result.stdout, end='')
+            print(result.stderr, end='', file=sys.stderr)
+        return result
 
 def main():
     result=json.loads((ROOT/'.sync-work/review-result.json').read_text())
