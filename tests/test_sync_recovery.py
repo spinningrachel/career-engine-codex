@@ -49,6 +49,7 @@ class RecoveryTests(unittest.TestCase):
         steps = flow['jobs']['sync']['steps']
         preflight = next(s for s in steps if s.get('id') == 'preflight')
         self.assertEqual(preflight['continue-on-error'], 'true')
+        self.assertEqual(preflight['shell'], 'bash')  # GitHub's explicit bash enables pipefail for tee.
         final = next(s for s in steps if s.get('name') == 'Require review and rerun validation')
         self.assertNotIn('continue-on-error', final)
         self.assertIn('bash tools/validate.sh', final['run'])
