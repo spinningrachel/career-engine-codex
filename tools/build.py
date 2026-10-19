@@ -37,17 +37,19 @@ def package(output):
         # Test harnesses are validated in source and omitted from product packaging.
         if path.name.startswith(('test-','test_')) or 'test-fixtures' in path.parts:
             continue
-        if rel in ('README.md','CLAUDE.md'):
-            continue
-        members.append((rel,blob))
+        # These documents are inputs to shipped doctrine QA. CODEX-RUNTIME.md
+        # supplies the host mapping for their upstream installation procedures.
+        mode = 0o755 if path.stat().st_mode & 0o111 else 0o644
+        members.append((rel,blob,mode))
     if hits:
         raise SystemExit('Packaging blocked:\n'+'\n'.join(hits))
     output.parent.mkdir(parents=True,exist_ok=True)
     with zipfile.ZipFile(output,'w',compression=zipfile.ZIP_DEFLATED) as z:
-        for rel,blob in members:
+        for rel,blob,mode in members:
             info=zipfile.ZipInfo(rel,date_time=(2026,1,1,0,0,0))
             info.compress_type=zipfile.ZIP_DEFLATED
-            info.external_attr=0o644<<16
+            info.create_system=3
+            info.external_attr=(0o100000 | mode)<<16
             z.writestr(info,blob)
     print('Built',output,'with',len(members),'files; personal-data scan passed')
 
