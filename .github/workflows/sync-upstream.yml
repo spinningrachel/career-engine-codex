@@ -25,6 +25,8 @@ jobs:
           python-version: '3.12'
       - name: Detect a new upstream version
         id: upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python3 tools/detect-upstream.py
       - name: Check Codex automation credential
         if: steps.upstream.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
@@ -43,13 +45,16 @@ jobs:
           python3 -m pip install -r requirements.txt
           mkdir -p codex/overrides
       - name: Generate and validate the mechanical port
+        id: preflight
         if: steps.upstream.outputs.changed == 'true'
+        continue-on-error: true
         run: |
           python3 tools/port.py --source .sync-work/upstream
           python3 tools/build.py
-          bash tools/validate.sh
+          bash tools/validate.sh 2>&1 | tee .sync-work/preflight.log
       - name: Review and adapt with Codex
         if: steps.upstream.outputs.changed == 'true'
+        timeout-minutes: 35
         uses: openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e
         with:
           openai-api-key: ${{ secrets.ALLOW_CODEX_UPDATES }}
@@ -64,6 +69,15 @@ jobs:
           python3 -c 'import json; r=json.load(open(".sync-work/review-result.json")); assert r["status"]=="passed" and not r["unresolved"],r'
           bash tools/validate.sh
           git diff --exit-code -- .github AGENTS.md requirements.txt codex/runtime.md codex/qa-plugin.md codex/sync-review.md codex/sync-result.schema.json codex/personal-data-hook.py codex/question-gate.py codex/update-contract.md tools/build.py tools/build-chatgpt.py tools/check-chatgpt-compatibility.py tools/check-codex-compatibility.py tools/scan-repo.py tools/detect-upstream.py tools/publish-sync.py tools/validate.sh
+          git diff --exit-code -- codex/native-version.py
+      - name: Report sync outcome
+        if: always()
+        env:
+          CHANGED: ${{ steps.upstream.outputs.changed }}
+          PREFLIGHT: ${{ steps.preflight.outcome }}
+        run: |
+          echo "Upstream changed: $CHANGED; initial validation: $PREFLIGHT" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Only a published PR or an updated main delivers an update; a skipped review does not verify the model/API path.' >> "$GITHUB_STEP_SUMMARY"
       - name: Open the reviewed update PR
         if: steps.upstream.outputs.changed == 'true'
         env:
@@ -76,8 +90,10 @@ jobs:
         if: always() && steps.upstream.outputs.changed == 'true'
         with:
           name: upstream-sync-review
+          include-hidden-files: true
           path: |
             .sync-work/review-result.json
             .sync-work/upstream.diff
+            .sync-work/preflight.log
             career-engine-codex.zip
             career-engine-chatgpt.zip

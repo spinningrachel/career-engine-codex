@@ -128,6 +128,20 @@ def generate(source):
             if len(args) == 5 and args[3] in policy:
                 lines[i] = line.replace('"hooks/hooks.json"', '"references/upstream-stop-policy.md"', 1)
     qa.write_text('\n'.join(lines)+'\n')
+    # Claude duplicates versions in two manifests. Codex's marketplace format
+    # has no version field: validate the actual native cache key and provenance.
+    text = qa.read_text()
+    start = text.find('V_PLUGIN=$(python3 ')
+    if start >= 0:
+        end_marker = 'expect_ge "73" "scripts/check-invariants.sh"'
+        end = text.find(end_marker, start)
+        block = text[start:end]
+        if end < 0 or '.claude-plugin/plugin.json' not in block or '.claude-plugin/marketplace.json' not in block:
+            raise RuntimeError('Upstream version assertion changed; native mapping review required')
+        replacement = ('if python3 "$(dirname "$0")/check-native-version.py" "$TARGET"; then report "73" 1 "";\n'
+                       'else report "73" 0 "native cache version/provenance invalid"; fi\n')
+        qa.write_text(text[:start] + replacement + text[end:])
+    shutil.copy2(ROOT / 'codex/native-version.py', target / 'scripts/check-native-version.py')
     overrides = ROOT / 'codex/overrides'
     if overrides.exists():
         for p in overrides.rglob('*'):
