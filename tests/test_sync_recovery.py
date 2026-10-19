@@ -46,7 +46,7 @@ class RecoveryTests(unittest.TestCase):
     def test_repairable_preflight_keeps_final_validation_blocking(self):
         import yaml
         flow = yaml.load((ROOT / '.github/workflows/sync-upstream.yml').read_text(), Loader=yaml.BaseLoader)
-        steps = flow['jobs']['sync']['steps']
+        steps = flow['jobs']['review']['steps']
         preflight = next(s for s in steps if s.get('id') == 'preflight')
         self.assertEqual(preflight['continue-on-error'], 'true')
         self.assertEqual(preflight['shell'], 'bash')  # GitHub's explicit bash enables pipefail for tee.
@@ -54,6 +54,18 @@ class RecoveryTests(unittest.TestCase):
         self.assertNotIn('continue-on-error', final)
         self.assertIn('bash tools/validate.sh', final['run'])
         self.assertIn('git diff --exit-code', final['run'])
-        self.assertLess(steps.index(final), next(i for i,s in enumerate(steps) if s.get('name') == 'Open the reviewed update PR'))
+        self.assertLess(steps.index(final), next(i for i,s in enumerate(steps) if s.get('name') == 'Save validated reviewed source'))
+        self.assertEqual(flow['jobs']['publish']['needs'], 'review')
+        self.assertNotIn('ALLOW_CODEX_UPDATES', str(flow['jobs']['publish']))
+        self.assertEqual(flow['permissions']['contents'], 'read')
+        self.assertEqual(flow['jobs']['publish']['permissions']['contents'], 'write')
+        checkpoint = next(s for s in steps if s.get('id') == 'checkpoint')
+        self.assertNotIn('continue-on-error', checkpoint)
         review = next(s for s in steps if s.get('name') == 'Review and adapt with Codex')
-        self.assertLess(int(review['timeout-minutes']), int(flow['jobs']['sync']['timeout-minutes']))
+        self.assertLess(int(review['timeout-minutes']), int(flow['jobs']['review']['timeout-minutes']))
+        self.assertEqual(review['with']['safety-strategy'], 'unprivileged-user')
+        self.assertEqual(review['with']['codex-user'], 'codex-review')
+        account = next(s for s in steps if s.get('name', '').startswith('Prepare an isolated review account'))
+        self.assertLess(steps.index(preflight), steps.index(account))
+        self.assertLess(steps.index(account), steps.index(review))
+        self.assertIn('must not have sudo', account['run'])

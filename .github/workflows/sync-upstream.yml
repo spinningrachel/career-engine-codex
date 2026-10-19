@@ -9,11 +9,14 @@ concurrency:
   group: career-engine-upstream-sync
   cancel-in-progress: false
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 jobs:
-  sync:
-    runs-on: ubuntu-latest
+  review:
+    runs-on: ubuntu-24.04
+    outputs:
+      changed: ${{ steps.upstream.outputs.changed }}
+      checkpoint: ${{ steps.checkpoint.outputs.artifact-id }}
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +44,7 @@ jobs:
         if: steps.upstream.outputs.changed == 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc
+          sudo apt-get install -y pandoc acl
           python3 -m pip install -r requirements.txt
           mkdir -p codex/overrides
       - name: Generate and validate the mechanical port
@@ -53,6 +56,23 @@ jobs:
           python3 tools/port.py --source .sync-work/upstream
           python3 tools/build.py
           bash tools/validate.sh 2>&1 | tee .sync-work/preflight.log
+      - name: Prepare an isolated review account without changing runner services
+        if: steps.upstream.outputs.changed == 'true'
+        shell: bash
+        run: |
+          sudo useradd --create-home --shell /usr/sbin/nologin codex-review
+          sudo chown -R codex-review:runner "$GITHUB_WORKSPACE"
+          sudo chmod -R g+rwX "$GITHUB_WORKSPACE"
+          parent=$(dirname "$GITHUB_WORKSPACE")
+          while [ "$parent" != / ]; do
+            sudo setfacl -m u:codex-review:x "$parent"
+            parent=$(dirname "$parent")
+          done
+          if sudo -u codex-review sudo -n true 2>/dev/null; then
+            echo 'The review account must not have sudo.' >&2
+            exit 1
+          fi
+          sudo -u codex-review python3 -c 'import socket; [socket.getaddrinfo(host, 443) for host in ("api.github.com", "results-receiver.actions.githubusercontent.com")]'
       - name: Review and adapt with Codex
         if: steps.upstream.outputs.changed == 'true'
         timeout-minutes: 35
@@ -60,6 +80,8 @@ jobs:
         with:
           openai-api-key: ${{ secrets.ALLOW_CODEX_UPDATES }}
           permission-profile: ':workspace'
+          safety-strategy: unprivileged-user
+          codex-user: codex-review
           allow-bots: true
           prompt-file: codex/sync-review.md
           output-schema-file: codex/sync-result.schema.json
@@ -70,7 +92,7 @@ jobs:
           python3 -c 'import json; r=json.load(open(".sync-work/review-result.json")); assert r["status"]=="passed" and not r["unresolved"],r'
           bash tools/validate.sh
           git diff --exit-code -- .github AGENTS.md requirements.txt codex/runtime.md codex/qa-plugin.md codex/sync-review.md codex/sync-result.schema.json codex/personal-data-hook.py codex/question-gate.py codex/update-contract.md tools/build.py tools/build-chatgpt.py tools/check-chatgpt-compatibility.py tools/check-codex-compatibility.py tools/scan-repo.py tools/detect-upstream.py tools/publish-sync.py tools/validate.sh
-          git diff --exit-code -- codex/native-version.py
+          git diff --exit-code -- codex/native-version.py tools/checkpoint-sync.py
       - name: Report sync outcome
         if: always()
         env:
@@ -79,16 +101,24 @@ jobs:
         run: |
           echo "Upstream changed: $CHANGED; initial validation: $PREFLIGHT" >> "$GITHUB_STEP_SUMMARY"
           echo 'Only a published PR or an updated main delivers an update; a skipped review does not verify the model/API path.' >> "$GITHUB_STEP_SUMMARY"
-      - name: Open the reviewed update PR
+      - name: Save validated reviewed source
         if: steps.upstream.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
-          CODEX_SYNC_AUTO_MERGE: ${{ vars.CODEX_SYNC_AUTO_MERGE != 'false' }}
-        run: |
-          gh auth setup-git
-          python3 tools/publish-sync.py
+          SYNC_BASE_SHA: ${{ github.sha }}
+        run: python3 tools/checkpoint-sync.py pack .sync-work/reviewed-sync.tar.gz --base "$SYNC_BASE_SHA"
+      - name: Upload reusable review checkpoint
+        id: checkpoint
+        if: steps.upstream.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-sync-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .sync-work/reviewed-sync.tar.gz
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always() && steps.upstream.outputs.changed == 'true'
+        continue-on-error: true
         with:
           name: upstream-sync-review
           include-hidden-files: true
@@ -98,3 +128,43 @@ jobs:
             .sync-work/preflight.log
             career-engine-codex.zip
             career-engine-chatgpt.zip
+  publish:
+    needs: review
+    if: needs.review.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.review.outputs.checkpoint }}
+          path: .sync-work/checkpoint
+          merge-multiple: true
+      - name: Restore the validated reviewed snapshot
+        env:
+          SYNC_BASE_SHA: ${{ github.sha }}
+        run: python3 tools/checkpoint-sync.py restore .sync-work/checkpoint/reviewed-sync.tar.gz --base "$SYNC_BASE_SHA"
+      - name: Install validation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+          python3 -m pip install -r requirements.txt
+      - name: Revalidate the restored source and packages
+        run: bash tools/validate.sh
+      - name: Publish the reviewed update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODEX_SYNC_AUTO_MERGE: ${{ vars.CODEX_SYNC_AUTO_MERGE != 'false' }}
+        run: |
+          gh auth setup-git
+          python3 tools/publish-sync.py
