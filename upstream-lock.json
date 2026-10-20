@@ -2,7 +2,7 @@
   "repository": "spinningrachel/career-engine-claude",
   "commit": "9de575055e375b5a1282a5bfa69c6cf17df3bd36",
   "generated_sha256": {
-    ".codex-plugin/plugin.json": "b4c11b877e5ee98db2874b0a9e7f68edd43591e3fe082c74391c31d4ae344618",
+    ".codex-plugin/plugin.json": "ff4a0b3a3432249b2935d08f82abfd7781026215bb78fc4f1729ff9621ca6070",
     "CLAUDE.md": "181c9ca40d8498413f506a111894fb9b4e52cf2394bf18dad1bad77d06503607",
     "CODEX-QA.md": "1ed3c6a1089f0bcf204c4d7d4d2b1be7f2b565eaff218c5c208dc4b00fd7512d",
     "CODEX-RUNTIME.md": "cbedee58b3363da3d501e66389ce6d307528d739a006c7955a6841b93c495651",
