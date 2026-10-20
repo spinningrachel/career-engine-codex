@@ -52,7 +52,7 @@ def main():
     run('git','config','user.name','career-engine-codex[bot]')
     run('git','config','user.email','career-engine-codex[bot]@users.noreply.github.com')
     # Explicit paths: never stage arbitrary agent output, secrets, or workflows.
-    run('git','add','plugin','codex/overrides','tools/port.py','tests','upstream-lock.json','LICENSE','career-engine-codex.zip','career-engine-chatgpt.zip','chatgpt','README.md')
+    run('git','add','plugin','codex/overrides','tools/port.py','tests','upstream-lock.json','LICENSE','career-engine-codex.zip','career-engine-chatgpt.zip', 'career-engine-chatgpt-plugin.zip','chatgpt','README.md')
     run('git','commit','-m',title)
     # Lease against the remote branch observed immediately before updating it.
     remote=run('git','ls-remote','origin','refs/heads/sync/upstream',capture_output=True).stdout.strip()

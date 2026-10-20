@@ -32,3 +32,4 @@ jobs:
           path: |
             career-engine-codex.zip
             career-engine-chatgpt.zip
+            career-engine-chatgpt-plugin.zip

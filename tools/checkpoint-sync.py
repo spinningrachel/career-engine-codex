@@ -11,7 +11,7 @@ import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PATHS = ('plugin', 'codex/overrides', 'tools/port.py', 'tests', 'upstream-lock.json',
-         'LICENSE', 'career-engine-codex.zip', 'career-engine-chatgpt.zip', 'chatgpt', 'README.md')
+         'LICENSE', 'career-engine-codex.zip', 'career-engine-chatgpt.zip', 'career-engine-chatgpt-plugin.zip', 'chatgpt', 'README.md')
 DIRS = ('plugin', 'codex/overrides', 'tests', 'chatgpt')
 
 def allowed(name):

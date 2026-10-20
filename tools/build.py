@@ -62,3 +62,7 @@ if __name__=='__main__':
         spec=importlib.util.spec_from_file_location('chatgpt_builder',ROOT/'tools/build-chatgpt.py')
         builder=importlib.util.module_from_spec(spec); spec.loader.exec_module(builder)
         builder.build(ROOT/'career-engine-chatgpt.zip')
+
+        spec=importlib.util.spec_from_file_location("chatgpt_plugin_builder",ROOT/"tools/build-chatgpt-plugin.py")
+        plugin_builder=importlib.util.module_from_spec(spec); spec.loader.exec_module(plugin_builder)
+        plugin_builder.build(ROOT/"career-engine-chatgpt-plugin.zip")
