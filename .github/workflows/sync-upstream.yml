@@ -95,6 +95,7 @@ jobs:
           git diff --exit-code -- .github AGENTS.md requirements.txt codex/runtime.md codex/qa-plugin.md codex/sync-review.md codex/sync-result.schema.json codex/personal-data-hook.py codex/question-gate.py codex/update-contract.md tools/build.py tools/build-chatgpt.py tools/check-chatgpt-compatibility.py tools/check-codex-compatibility.py tools/scan-repo.py tools/detect-upstream.py tools/publish-sync.py tools/validate.sh
           git diff --exit-code -- codex/native-version.py tools/checkpoint-sync.py
           git diff --exit-code -- tools/ci-runtime.py
+          git diff --exit-code -- tools/build-chatgpt-plugin.py tools/check-chatgpt-plugin.py chatgpt/plugin-skill.md
       - name: Report sync outcome
         if: always()
         env:
@@ -130,6 +131,7 @@ jobs:
             .sync-work/preflight.log
             career-engine-codex.zip
             career-engine-chatgpt.zip
+            career-engine-chatgpt-plugin.zip
   publish:
     needs: review
     if: needs.review.outputs.changed == 'true'

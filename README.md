@@ -1,5 +1,14 @@
 # Career Engine for Codex and ChatGPT
 
+## Install in ChatGPT Plugins
+
+Download [career-engine-chatgpt-plugin.zip](https://github.com/spinningrachel/career-engine-codex/raw/refs/heads/main/career-engine-chatgpt-plugin.zip) for the ChatGPT Plugins upload flow. This is the portable plugin archive, with root `plugin.json`, a discoverable Career Engine skill, and supporting doctrine/runtime/templates. Upload this ZIP as a plugin; it requires no Custom GPT creation or GPT-to-plugin migration. The other archives below serve Codex CLI and the older manual GPT/Project setup routes.
+
+For an existing migrated Career Engine plugin, use its update workflow to preserve identity, sharing, and any existing connections. This repository artifact does not automatically update your installed plugin; do not create a duplicate as an update. Account update eligibility and live installation must be verified in ChatGPT. No MCP server, connector authentication, or native hooks are added by this skills package. Keep private career-data separate.
+
+Upstream pushes notify this repository through `career-engine-updated`; hourly polling remains the fallback. Changed source passes the existing isolated review, final validation, reusable checkpoint, and publish process. All three packages are rebuilt and published together. Failed plugin checks block delivery; GitHub checks validate packaging and exports, not live ChatGPT execution.
+
+
 Career Engine's career doctrine, reference templates, roles, and review gates come from [Career Engine for Claude](https://github.com/spinningrachel/career-engine-claude), pinned in `upstream-lock.json`. This parallel repository adapts that source for Codex and for **both ChatGPT Custom GPTs and Projects**. All three installation paths are maintained on every update.
 
 **Personal career data never belongs in either public repository or package.** First-time users install and configure their own external **career-data** skill separately. Packages contain instructions, code, blank templates, and fictional test fixtures. Updating an installation replaces shared materials and preserves the user's private career-data and outputs.
