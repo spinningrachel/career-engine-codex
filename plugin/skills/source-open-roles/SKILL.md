@@ -48,6 +48,7 @@ Target titles are searched as a **variant set**, not verbatim. The same role sur
 **The variant set:**
 - **Source of truth:** the user's stored set in `${CAREER_DATA}/references/pipeline-preferences.json` → `title_variants`. Seeded once (Gate 1, on first run or the first run after upgrade), human-editable, auto-used every run, shown in the run header.
 - **If no stored set exists:** derive on the fly from `target_titles` plus `USER_PROFESSION` and `USER_FUNCTION_SENIORITY_HIERARCHY` (`01-writing-rules.md` §8) — seniority variants (Lead / Manager / Director / Head / VP), phrasing variants (Product Marketing ↔ PMM, Go-to-Market ↔ GTM), and any adjacent-function variants the user flagged — then trigger Gate 1's seed so the set is stored for next time.
+- **Capabilities mode (2026-10-19, `role_matching` absent or `capabilities`):** search terms also come from the capability profile's group lines (`${CAREER_DATA}/references/capability-profile.md`) (the discipline words, not titles) and `scope_preferences.want` — a role titled something new still surfaces when it asks for work the user does. Titles remain a search seed, never a gate. Under `titles` this widening does not apply.
 - **Cap: ~6–8 variants per target title.** Stop there; search volume and noise stay manageable, and dedup + scoring absorb the overlap.
 
 **Global search rule:** wherever a Site Catalog pattern below shows `[title]`, run it **once per variant** in the set (the LinkedIn `search_jobs` keywords and every `site:... "[title]"` WebSearch). Deduplication collapses the repeats; scoring ranks them.
@@ -68,6 +69,7 @@ Source selection is layered, not mode-based. Every run starts with the full Tier
 | Indeed | Core board |
 | Glassdoor | Core board |
 | BuiltIn | Core board |
+| ChoppingBlock (AI jobs) | Core board — AI/ML-company roles, all functions |
 | Crunchbase | Company intelligence |
 | PitchBook | Company intelligence |
 | Tracxn | Company intelligence |
@@ -186,6 +188,7 @@ All fetched via `WebSearch` using the pattern: `site:<domain> "[title]" [time si
 | Site | Fetch method |
 |---|---|
 | startup.jobs | Prefer `mcp__startup-jobs__search_jobs` (keyword/role/country/remote/employment-type filters) + `mcp__startup-jobs__get_job` for full listing detail, if Gate 2's connection check found it connected (per `${CAREER_ENGINE_ROOT}/references/job-sourcing-mcp-registry.md` — structured, no scraping; both tools are granted in this agent's own frontmatter). **Gate:** if not connected, fall back to `WebFetch("https://startup.jobs/?q=[title-urlencoded]&remote=true")` — the run header already noted the unconnected server at Gate 2, no need to repeat it here. |
+| ChoppingBlock (Tier 1 — every run) | `WebFetch("https://www.choppingblock.ai/jobs?q=[title-urlencoded]")` — server-rendered, keyword search works (verified 2026-10-03, returns PMM listings). Optional filters: `&remote=`, `&country=`, `&seniority=`. Fallback `WebSearch("site:choppingblock.ai [title]")`. AI-native companies only. |
 | MoaiJobs | `WebFetch("https://www.moaijobs.com/")` + `WebSearch("site:moaijobs.com [title]")` |
 | CareerVault | `WebFetch("https://careervault.io/")` + `WebSearch("site:careervault.io [title]")` |
 
@@ -228,6 +231,7 @@ Use these to surface roles posted directly on company career pages via their ATS
 |---|---|
 | MoaiJobs | See Startup section |
 | CareerVault | See Startup section |
+| ChoppingBlock | See Startup section |
 | PitchMeAI | See Remote section |
 | TheirStack | Requires `mcp__theirstack__*` tools. Gate: if not connected, skip and note. |
 
@@ -296,7 +300,7 @@ Before scoring and displaying results, filter out any role that already exists i
 
 **Resolve the database id from the main config — one place to configure it.** Use `database_id` (legacy `notion_database_id`) from `${CAREER_DATA}/references/pipeline-preferences.json` — the same source every other pipeline reads. Everywhere below, the database id means this resolved value.
 
-**How to check:** Query the active applications via the **Notion adapter** (`${CAREER_ENGINE_ROOT}/skills/database-notion/SKILL.md` → §2 read ladder, loaded when `database_backend` is `notion`; on Path B use the adapter's §3 view discovery to resolve a broad view such as "All Active Applications"). Extract the `Company` + `Position` pairs from the result — but if the returned table is misaligned (row/column counts don't match, cells empty where neighbours are not), do not parse it: log a warning, skip dedup for this run, and note in the results that duplicates were not filtered. A skipped dedup is recoverable; a mispaired Company/Position exclusion silently hides a real role. Extract all `Company` + `Position` pairs. For each search result: if `(company name, role title)` matches any existing pair (case-insensitive, substring match on title), exclude it from results. Log the count of excluded duplicates.
+**How to check:** Query **every row, whatever its Status — closed rows included (2026-10-15, per the user: dedup "should include" closed roles)** via the **Notion adapter** (`${CAREER_ENGINE_ROOT}/skills/database-notion/SKILL.md` → §2 read ladder, loaded when `database_backend` is `notion`) **in its all-rows mode (`target status = ALL`, defined in §2)**: Paths A1/A2 run with no Status filter; Path B resolves, through §3 view discovery, a view with no Status filter (one named "All", "All Applications", or similar) — a view whose saved filter hides `Closed` rows, such as an "active applications" view, is not acceptable for this step, since a closed role that is re-posted would come back as a new suggestion. If the adapter returns `all-rows unavailable` (Path B, no unfiltered view in the tracker), skip dedup for this run with the existing warning plus one line naming the fix: "add a view with no Status filter, e.g. 'All Applications', to enable deduplication." — never halt the sourcing run over it. Capture each row's `Status` alongside `Company` + `Position`. Extract the `Company` + `Position` pairs from the result — but if the returned table is misaligned (row/column counts don't match, cells empty where neighbours are not), do not parse it: log a warning, skip dedup for this run, and note in the results that duplicates were not filtered. A skipped dedup is recoverable; a mispaired Company/Position exclusion silently hides a real role. Extract all `Company` + `Position` pairs. For each search result: if `(company name, role title)` matches any existing pair (case-insensitive, substring match on title), exclude it from results — a match on a `Closed` (or `Position Closed`/`Role Closed`) row is excluded the same way, counted separately as "previously closed", so the report shows how many re-posts of closed roles were seen without re-surfacing them. Log both counts.
 
 If no database id resolves, skip dedup and display a warning: "Deduplication skipped — no database ID configured. Run /career-engine:setup to configure."
 
@@ -321,7 +325,22 @@ Score every result (0–100) after deduplication.
 | Apply URL present (non-LinkedIn sources) | 6 |
 | Screening conflict — a populated `screening_answers` field contradicts a stated JD requirement | −15 (down-rank, never exclude; attach a visible label) |
 
-Cap at 100. Sort descending. Roles without a title match should not appear unless no matches exist.
+Cap at 100. Sort descending. Under `titles` mode, roles without a title match should not appear unless no matches exist.
+
+### Capabilities mode (default; `role_matching` absent or `capabilities`) — 2026-10-19
+
+Per the user: "the coach needs to be savvy enough to identify what the user knows how to do, what they're aiming for in terms of scope of responsiblities and/or what they want and don't want to do, and then find relevant roles accordingly ... including but not limited to role titles." The title signal shrinks to a nudge and the "no title match → hidden" rule does not apply. Coverage is scored only for the opened shortlist (agent Step 4, pass 2): items = the posting's responsibilities and requirements; coverage = items a profile line covers (capability underneath the label, any vocabulary) ÷ all items.
+
+| Signal | Points |
+|---|---|
+| Responsibility coverage ≥ 80% | +30 |
+| Responsibility coverage 60–79% | +20 |
+| Responsibility coverage 40–59% | +10 |
+| `scope_preferences.want` hit on a responsibility | +5 (cap +10 total) |
+| `scope_preferences.avoid` hit on a core responsibility | −15 + visible label `⚠ scope: avoid — [item]` (down-rank, never exclude) |
+| Title exact / partial match (replaces the 20 / 10 rows above) | +8 / +4 |
+
+The other rows (recency, remote, salary, applicants, hiring manager, Easy Apply, apply URL, screening conflict) apply unchanged. `exclusion_patterns` stays a title-substring exclusion in both modes. Profile missing under `capabilities` → the title rubric above plus the header notice; never a stop.
 
 **Standing screening answers (`screening_answers` from `${CAREER_DATA}/references/pipeline-preferences.json`).** If present, compare each *populated* field (travel / relocation / security_clearance / compensation_floor / availability) against the JD. A hard conflict (e.g. role explicitly requires relocation while `relocation` = "no") applies the −15 down-rank above **and** attaches a visible reason label to the row (`⚠ screening: relocation required vs your "no"`) so the user sees exactly why it ranked lower. **Never silently exclude on a screening conflict** — down-rank + label only, and log it in the run output. If `screening_answers` is absent or empty, skip this entirely (no labels, no down-ranks).
 

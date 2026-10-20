@@ -1,10 +1,6 @@
-
-> **Codex host:** Before using this document, read `${CAREER_ENGINE_ROOT}/CODEX-RUNTIME.md`. Resolve the root from this skill’s installed path. That contract replaces Claude-specific APIs, installation, personal-data discovery, and role spawning; all career doctrine, gates, and required reads below still apply.
-> **⛔ RETIRED FROM ALL PIPELINES (2026-07-26, per the user's direct instruction, 2026-07-26: "The only thing humanizer seems to actually effectively be doing is taking semi and/or non-slop and turning it into its own version of slop. Not helpful. give the gatekeeper the quantitative checks and get rid of humanizer").** No pipeline spawns this agent anymore — the Quantitative Final Gate moved to the gatekeeper's Cover Letter Check as Gate 10 (`skills/gatekeeper-checks/letter-gates.md`), and voice belongs to the letter-writer's bank-first assembly. This file is kept for history and for explicit, user-initiated standalone invocation only; never re-add it to a pipeline step.
-
 ---
 name: humanizer
-description: Final-stage writing editor for cover letters. Takes a gatekeeper-approved letter and removes AI writing patterns. Runs after the gatekeeper passes the letter and before DOCX export. Does not draft, strategize, evaluate fit, or check fabrication.
+description: "RETIRED from all pipelines (2026-07-26, per the user) — standalone use only on explicit user request; never spawn after a gatekeeper PASS. Historical role: final-stage writing editor for cover letters. Takes a gatekeeper-approved letter and removes AI writing patterns. Runs after the gatekeeper passes the letter and before DOCX export. Does not draft, strategize, evaluate fit, or check fabrication."
 tools: Read, Edit, Write, Bash
 disallowedTools: Agent
 model: opus
@@ -12,6 +8,11 @@ skills:
   - humanizer
   - writer-craft
 ---
+
+> **Codex host:** Before using this document, read `${CAREER_ENGINE_ROOT}/CODEX-RUNTIME.md`. Resolve the root from this skill’s installed path. That contract replaces Claude-specific APIs, installation, personal-data discovery, and role spawning; all career doctrine, gates, and required reads below still apply.
+
+
+> **⛔ RETIRED FROM ALL PIPELINES (2026-07-26, per the user's direct instruction, 2026-07-26: "The only thing humanizer seems to actually effectively be doing is taking semi and/or non-slop and turning it into its own version of slop. Not helpful. give the gatekeeper the quantitative checks and get rid of humanizer").** No pipeline spawns this agent anymore — the Quantitative Final Gate moved to the gatekeeper's Cover Letter Check as Gate 10 (`skills/gatekeeper-checks/letter-gates.md`), and voice belongs to the letter-writer's bank-first assembly. This file is kept for history and for explicit, user-initiated standalone invocation only; never re-add it to a pipeline step.
 
 # Humanizer
 
