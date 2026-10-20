@@ -26,10 +26,10 @@ Open the Claude Desktop app → **Customize → Personal Plugins → +** → **P
 
 ![Installing the career-engine plugin](assets/install-plugin.gif)
 
-Claude Code users can install via the marketplace instead, for automatic updates:
+Claude Code users can install via the marketplace instead (update with `claude plugin marketplace update cheyfitz` then `claude plugin update career-engine@cheyfitz`; if a stale version keeps loading, `rm -rf ~/.claude/plugins/cache/cheyfitz` first — see the wiki's Installation page):
 
 ```
-/plugin marketplace add spinningrachel/career-engine
+/plugin marketplace add spinningrachel/career-engine-claude
 /plugin install career-engine@cheyfitz
 ```
 
@@ -84,6 +84,66 @@ Everything beyond this quick start lives in the **[Wiki](https://github.com/spin
 ---
 
 ## Changelog
+
+### 2026-10-19 — Capability profile cap raised to 30
+
+**Improvements**
+- **The capability profile holds up to 30 lines; early-career users keep 25.** Per the user: "let's go to 30 max with a note that more junior professionals should have the 25 cap." The coach applies 25 when the seniority level in `01-writing-rules.md` §1 is below Senior IC or the documented record holds fewer than about eight years of work, and says which cap it applied when it shows the draft. The blank template, the setup skill, and QA Check 71 carry the same numbers. Existing profiles are unaffected until regenerated.
+
+### 2026-10-19 — Capability matching by default
+
+**New features**
+- **One switch for how roles are matched.** `role_matching` in `pipeline-preferences.json` is `capabilities` by default (fit = responsibility coverage; titles only a nudge) or `titles` for a rigid, official-titles-only user. Sourcing now widens its search terms from your capability profile and scores the top ~30 results for coverage in a second pass; Prioritization and the coach honour the same switch.
+- **`scope_preferences`** (`want` / `avoid`) — responsibilities you want more of or refuse to do; they adjust a score by one tier, never exclude a role. Setup drafts them for your confirmation.
+- **`cv_title_rules`** — standing per-employer title rules in the config. Under `titles` the CV plan defaults to Keep.
+
+**Removals (each on the user's instruction)**
+- Setup and the CSV template no longer create `CV Title Preferences` — "even for the 'more rigid' it's better to store this in the json. and not as a one-off per entry in the db." The column is still read when a tracker has one.
+- Sourcing's "no title match → hidden" filter retires under `capabilities` (kept under `titles`) — "the coach needs to be savvy enough to identify what the user knows how to do, what they're aiming for in terms of scope of responsiblities and/or what they want and don't want to do, and then find relevant roles accordingly ... including but not limited to role titles."
+
+**Migration** — existing users: ask the career coach to "set my role matching / scope preferences / title rules"; it returns an update prompt that edits `pipeline-preferences.json`. Nothing breaks if you do nothing: absent keys mean `capabilities`.
+
+### 2026-10-15 — Bug fix: plugin updates reach the CLI install
+
+**Bug fixes**
+- **Version bumped to 1.0.1 so `claude plugin update` fetches the fix.** The CLI caches a marketplace plugin by its manifest version. The duplicate-hooks fix merged, the update reported success, and the plugin still failed to load from the cached `1.0.0` copy. Both manifests now carry `1.0.1`, every shipped build raises the version from here on (the pre-commit hook refuses a commit of shipped files whose staged version is not greater than main's, QA Check 73 keeps the two manifests in step), and a stale cache is cleared with `rm -rf ~/.claude/plugins/cache/cheyfitz` before `claude plugin marketplace update cheyfitz` and `claude plugin update career-engine@cheyfitz`.
+
+### 2026-10-15 — Bug fixes: plugin load, and the prioritizer's LinkedIn URL read
+
+**Bug fixes**
+- **The manifest no longer double-loads the hooks file.** `plugin.json` named `./hooks/hooks.json` under `hooks`, which Claude Code already loads on its own; the marketplace install failed with "Duplicate hooks file detected" and the plugin never loaded. The key is removed and QA Check 21t asserts it stays absent.
+- **A LinkedIn URL with a job ID is a listing, in every URL shape.** The fetch ladder only knew `linkedin.com/jobs/view/<id>`. A saved URL of the form `jobs/search-results/?currentJobId=<id>&...&origin=COMPANY_PAGE_...` was read as a company overview, so the guest endpoint and the LinkedIn connector never ran on it. The ladder now extracts the job ID from `jobs/view/<id>`, `currentJobId=<id>` and `originToLandingJobPostings=<id>`, and treats any URL carrying one as a listing; navigation parameters never change that.
+- **URL class comes from the URL, never from a note.** The same run took "company overview" from an `Edit notes` line. The prioritizer now classifies a saved URL from its own host, path and job ID; a note governs role facts (unadvertised, scope, open application), never whether a URL is a listing.
+- **A follow-up turn is still the run.** After the user corrected the URL, the agent ended with "To score it, paste the JD text or the role title." A correction re-runs that role through the ladder and the outcome table and ends with the summary line; it never turns into a request for input. The ask-question battery gained the exact wording as a must-deny case.
+
+### 2026-10-15 — Bug fix: the plugin installs again
+
+**Bug fixes**
+- **Invalid frontmatter blocked the whole install.** The Desktop installer rejected the previous 2026-10-15 build: the career-coach agent's description line had inner double quotes that broke its YAML frontmatter, so no file was saved. Fixed there and in two skill descriptions with the same shape (an unquoted colon-space). The retired humanizer's banner moved below its frontmatter so the platform reads the block, and its description now leads with the retirement so no session spawns it after a gatekeeper PASS.
+- **A parse gate replaces grep for frontmatter.** New `scripts/check-frontmatter.py` parses every shipped `.md` that opens with `---` (agents and skills must also carry `name` and `description`, duplicate keys are rejected) at commit, at build, and in QA Check 72 against the unzipped artifact. PyYAML is a maintainer dependency for it, not a user prerequisite.
+
+### 2026-10-15 — Capability profile: function fit scored on responsibilities, not titles
+
+**New features**
+- **A capability profile replaces the title list as the prioritizer's function-fit signal.** Per the user: "currently on the market, job titles are changing, so it's becoming challenging to pin down exact title names. this is true not just for me but for any user." A real run scored a Revenue Enablement Manager role at the weaker-fit tier on its Sales department and title alone, while two-thirds of its responsibilities were work the user had done for years. The Prioritization pipeline now scores a JD's responsibilities and requirements as coverage against a new career-data file, `references/capability-profile.md` — at most 25 title-free lines naming what the user does, in generic discipline vocabulary, in at most 5 discipline groups. Coverage maps to the same tier bands the coach uses; the other framework criteria adjust by one step; hard floors stay absolute; the title list becomes advisory (a match can nudge a score up, a mismatch never lowers it), and the department a role sits in is no longer a criterion. Sourcing keeps using `target_titles`, which still needs words to search with. The coach's full requirements-coverage scoring at intake is unchanged and still overwrites the prioritizer's provisional score.
+- **The coach derives the profile; the user confirms it once.** Per the user: the agent must be "discerning enough to ensure the list of responsibilities is not repetitive, AND is also transferrable across roles," and it "drafts the profile fully from background and then asks for final confirmation before packaging." New doctrine `skills/career-coach/coach-capability-profile.md`: extract every documented activity, strip each to a capability with no employer, product, industry, or title in it, keep only capabilities the user does (never knowledge about a domain, never a title), require each line to hold true across at least two functions or industries, collapse every near-duplicate pair, group and cap, self-check, then show the whole draft once and wait for a yes or line edits. No interview. Setup Phase 4 generates it for new users; existing users say "generate my capability profile" to the coach and get an update prompt through the normal paste, repackage, reinstall path.
+
+**Improvements**
+- **A confirmed-closed posting now updates itself.** Per the user, from the first run after the 2026-10-14 fix: "if the position closed then that's the update. It should be automatic." Prioritization and intake now write `Status = Closed` when the closure evidence rule is met — the company's own careers, ATS, or posting page says closed, filled, or no longer accepting, or the URL is gone (404/410) and the careers index checked that run does not list the role. The write uses whichever option your tracker already has (`Closed`, `Position Closed`, or `Role Closed`); a tracker with none is never broken, the run reports the role and tells you once to add the option. A dead redirect with no second confirmation stays a "possibly closed" report line, as before. A closed role is never scored, never researched, and leaves every queue. The Edit pipeline applies the same rule: a `Needs Editing` role whose posting is confirmed closed is set to `Closed` instead of being dropped with a "paste the JD" note. Sourcing deduplication now reads every tracker row regardless of Status, so a closed role that gets re-posted is excluded (and counted as "previously closed") instead of coming back as a new suggestion.
+- **"Unfetchable" has to be earned by searching.** Per the user: "if the link is blocked, the agent should do a quick web search and only then count it unfetchable if nothing comes up." A blocked LinkedIn page now goes through LinkedIn's no-login guest endpoint and the LinkedIn MCP lookup before the careers-page, ATS-mirror, and exact-title searches, and every skipped role's report line names the searches that ran. A line with no searches named is a defect. A paste-the-JD offer is now a defect wherever it appears, including mid-run narration (a real run slipped one in before its otherwise-correct report).
+
+**Migration note for existing users:** nothing breaks. Until you generate the profile, Prioritization runs exactly as before and prints one line saying the profile is missing. To add it: ask the career coach to "generate my capability profile," review the draft it shows you, confirm, then apply the update prompt it writes to `_career-data-updates/` in your output folder (Chat and Code both, if you use both). Regenerate it whenever your background files change.
+
+### 2026-10-14 — Prioritization runs with zero human input
+
+**Bug fixes**
+- **Prioritization no longer stops to ask.** Per the user: "This is supposed to be a simple automated process that needs no human input." A real run fetched six `New` roles, scored what it could, and then wrote nothing: it held a correctly-scored role because the scorer returned the tier label `Fifth` instead of the tracker's `6`; it asked whether a closed role and two saved URLs that were company pages rather than listings should be "Duplicate or Position Closed instead of scoring"; and it offered to score three LinkedIn-blocked roles "if you paste the three JDs here." `agents/role-prioritizer.md` now carries a **Prioritization outcome table** that gives every fetch outcome exactly one write and one summary line — usable JD text → score, write all five, promote; no usable text → `JD Fetch Status` alone, Status untouched, reason in the report — and a named anti-pattern recording that run. The tier label is converted to the number before any write or scores-only return (`Highest`→`1` … `Fifth`→`6`, from `skills/database/SKILL.md`); a skipped role always gets its `JD Fetch Status` written so the tracker shows why it is stuck; a closed posting or a non-listing URL is a report line with its evidence, never a question (the plugin has no closed/duplicate Status to set); the user's own note is usable role data (a role she says has no posting, or calls an open application, is scored from her facts and promoted with `JD Fetch Status = Unfetchable`, matching intake and the coach — a company-page URL with no such note is never inferred to be an open application); and the Step 4 summary ends the run. The scores-only caller contract inherits all of it.
+- **Both hooks now cover a Prioritization run.** The Stop hook's prompt names Prioritization and the three ask-shapes above; the deterministic `AskUserQuestion` gate gained a narrow input-ask pattern (paste-the-JD, your-call, held-write, closed/not-a-listing) that still requires run evidence in this session's transcript and still allows genuine blocker questions. The battery grew from 11 to 20 cases, including the three real asks (deny), the same asks reworded around a failure (deny — in a session that spawned the prioritizer, a paste-the-JD offer is never a blocker question), and the same wording in a development or career-data session (allow).
+
+### 2026-10-03 — New job source
+
+**New features**
+- **ChoppingBlock added to Tier 1 sourcing** — `source-open-roles` now searches choppingblock.ai (AI/ML-company jobs, all functions) on every run via its `/jobs?q=` keyword search.
 
 ### 2026-09-28 — Bug fix: AskUserQuestion hook false positive
 
