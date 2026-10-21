@@ -13,13 +13,33 @@ INCLUDE = ('agents', 'skills', 'references', 'scripts', 'assets')
 BOOT = '\n> **Codex host:** Before using this document, read `${CAREER_ENGINE_ROOT}/CODEX-RUNTIME.md`. Resolve the root from this skill’s installed path. That contract replaces Claude-specific APIs, installation, personal-data discovery, and role spawning; all career doctrine, gates, and required reads below still apply.\n'
 
 def translate(text):
-    return text.replace('${CLAUDE_PLUGIN_ROOT}', '${CAREER_ENGINE_ROOT}').replace('$CLAUDE_PLUGIN_ROOT', '$CAREER_ENGINE_ROOT')
+    text = text.replace('${CLAUDE_PLUGIN_ROOT}', '${CAREER_ENGINE_ROOT}').replace('$CLAUDE_PLUGIN_ROOT', '$CAREER_ENGINE_ROOT')
+    # Gate 2 must run from a relocated installation, regardless of shell cwd.
+    return text.replace('python3 skills/gatekeeper-checks/scripts/pregate-lint.py',
+                        'python3 "${CAREER_ENGINE_ROOT}/skills/gatekeeper-checks/scripts/pregate-lint.py"')
 
 def add_bootstrap(text):
     if text.startswith('---\n') and '\n---' in text[4:]:
         end = text.index('\n---', 4) + 4
         return text[:end] + '\n' + BOOT + text[end:]
     return BOOT + text
+
+def adapt_cv_word_count(text):
+    # Preserve Gate 2's language-neutral token definition and comment exclusion.
+    # Fail closed if upstream changes these implementation sites on a later sync.
+    replacements = {
+        '    total, skipping = 0, False\n    for line in lines:':
+        '    total, skipping = 0, False\n'
+        '    lines = re.sub(r"<!--.*?-->", "", "\\n".join(lines), flags=re.DOTALL).splitlines()\n'
+        '    for line in lines:',
+        'if re.search(r"[A-Za-z0-9]", tok)':
+        'if any(char.isalnum() for char in tok)',
+    }
+    for original, replacement in replacements.items():
+        if text.count(original) != 1:
+            raise RuntimeError('Upstream CV word-count implementation changed; review required')
+        text = text.replace(original, replacement)
+    return text
 
 def preserve_stop_policy(source, target):
     # Codex has no prompt Stop hook. Preserve its career policy as required
@@ -62,6 +82,8 @@ def generate(source):
     for p in target.rglob('*'):
         if p.is_file() and p.suffix in ('.md','.sh','.py','.json'):
             text = translate(p.read_text())
+            if p.relative_to(target).as_posix() == 'skills/gatekeeper-checks/scripts/pregate-lint.py':
+                text = adapt_cv_word_count(text)
             if p.name == 'SKILL.md' or (p.parent.name == 'agents' and p.suffix == '.md'):
                 text = add_bootstrap(text)
             if p.relative_to(target).as_posix() == 'agents/qa-plugin.md':

@@ -26,7 +26,7 @@ The letter is built FROM the user's existing words, aimed at this role. Her mate
 
 ## 2. Inputs and what each one does
 
-- **The coach's outline** (`$PIPE/coach-outline.md`) — the letter's paragraph structure and order. Follow it. It names each paragraph's subject only; her material supplies what each paragraph says.
+- **The coach's outline** (`$PIPE/coach-outline.md`) — the letter's paragraph structure and order. Follow it. Each `Para` line is an argument plan: the **claim** the paragraph must establish, the documented work to **LEAD** with, and what stays **SUPPORT** (a clause at most). Open the paragraph on the LEAD and make the claim in plain terms — a passing mention is not making it. Legacy bare-subject lines mean topic only. Either way the outline carries no facts or phrasing; her material supplies what each paragraph says.
 - **`Role emphasis`** — the content selector: what this role is for, so which Bank entries, WIWTR pieces, and proof points should carry the letter. Never a source of sentences or facts.
 - **WIWTR** — her role-specific motivation, when present. All its distinct points appear in the letter, honestly labeled (Rule 9 below). It never sets paragraph order — it is raw material.
 - **The final CV** — for the no-repetition rule only (Rule 6).
@@ -68,9 +68,21 @@ The letter is built FROM the user's existing words, aimed at this role. Her mate
 
 What they share: a person up front, the verb early, detail trailing behind. Fragments are rare and each has a job — a fragment with no job is noise, not rhythm.
 
-## 4. The letter's shape — five blocks, each present and doing its job
+## 3b. Senior roles — one paragraph on what success looks like and how it's measured
 
-Greeting → **Opening** → **Philosophy** (a belief/POV about the discipline in her voice — may be one sentence; never another proof point) → **Proof** (1-3 paragraphs, one job each, at least one named outcome) → **Objection-Preemption** (the reader's likely hesitation answered by demonstration — proof that speaks to it, with NO acknowledgment that a question exists; often lives inside a proof paragraph) → **Close** → Sign-off. The gatekeeper checks all five blocks independently; a block that occupies the position without doing its job fails.
+*(2026-10-20, per the user: "for senior roles, letters should emphasize what success looks like - this doesn't have to be metrics/KPIs - but there should be a para that indicates to hiring managers that the user knows how they should be measured.")*
+
+**Applies when the role is senior:** the role title carries Manager, Lead, Head, Director, VP / Vice President, Chief, GM, or Principal (or anything higher), **or** `Strategy = Strategic`. For these roles the letter carries one dedicated paragraph, between the proof and the close, showing the reader she knows what this seat is judged on.
+
+- **Source: `Role emphasis` only** — its **Likely KPIs** bullets (and the Emphasis jobs they pair with) tell you what the role is measured on; her own results from the final CV / Motivation Bank / delivered letters supply the matching experience. No other role-analysis input exists for you — never reach for the JD, `Landscape`, or research.
+- **Shape: 2-3 plain sentences.** Say what success in this seat looks like in terms a hiring manager would use (a motion that runs without her, adoption that sustains, a pipeline the sales team trusts, a launch cadence that holds) and tie it to how she has been measured before. It does **not** need numbers. When a number is hers and documented, use it exactly as documented; never invent a target, never promise a result.
+- **Judged-on, not promised.** The paragraph shows she knows the measure ("I'd expect to be judged on…", "the real test of this seat is…") — it is not a 30-60-90 plan, not a pledge of outcomes, not a recital of the JD's responsibilities.
+- **Counts inside the word ceiling.** Make room by trimming the weaker of two proof lines, never by dropping this paragraph or the close.
+- **Not senior:** write no such paragraph; do not pad an IC letter with a KPI paragraph.
+
+## 4. The letter's shape — five blocks (plus the senior-roles-only Success measure), each present and doing its job
+
+Greeting → **Opening** → **Philosophy** (a belief/POV about the discipline in her voice — may be one sentence; never another proof point) → **Proof** (1-3 paragraphs, one job each, at least one named outcome) → **Objection-Preemption** (the reader's likely hesitation answered by demonstration — proof that speaks to it, with NO acknowledgment that a question exists; often lives inside a proof paragraph) → **Success measure** (senior roles only, §3b) → **Close** → Sign-off. The gatekeeper checks all five blocks (and the Success measure on senior roles) independently; a block that occupies the position without doing its job fails.
 
 - **Greeting:** exactly "Hi to the [Company] team!" or "Hi to [Name]!" (stealth roles: "Hi to the team!" or "Hi to the [JD descriptor] team!"). Company name appears in paragraph 1 (stealth: the JD descriptor).
 - **Body ceiling:** 320 words (`wc -w`, excluding greeting/sign-off); **250 when `Strategy = Strategic`**. No minimum — short and hers beats padded.
@@ -80,7 +92,7 @@ Greeting → **Opening** → **Philosophy** (a belief/POV about the discipline i
 ## 5-10. The absolutes
 
 5. **No fabrication, ever.** Every claim traces to her documented background or her own words (WIWTR/Bank/framework/delivered letters — which are hers, not fabrication). No reviewer feedback ever authorizes invention. No claim documented for one role generalized to more; no prior-state claims about past employers beyond the documented record.
-6. **Never repeat CV content.** Skip it, add something new, or enhance it with story/decision logic the CV can't carry — never restate.
+6. **Never repeat CV content.** Skip it, add something new, or enhance it with story/decision logic the CV can't carry — never restate. **Exception: the outline's `LEAD:` work.** If the plan requires evidence the CV also states (team leadership, owned scope), use it and add the decision, stakes, or reasoning the CV bullet lacks; do not swap it for a smaller, CV-absent artifact to dodge repetition (that traded leadership for a brochure in the IO River letter).
 7. **No em dashes. No colons in body text.** Period, comma, or restructure.
 8. **Never name a gap.** Nothing is "unfamiliar," "new to me," or "a gap" — check her guardrail table (`01-writing-rules.md` "do not flag as a gap" rows) FIRST; use its exact framing. A hesitation is answered by demonstration or by silence.
 9. **Honest WIWTR labels.** `$PIPE/wiwtr-checklist.md`, three fields per point: her exact text, the letter's rendering (or "ABSENT"), and a true label — `verbatim` (her string is literally in the letter; it gets grepped), `adapted` (her words, connectors adjusted), `resolved-by-proof` (with why her phrasing couldn't be carried), or `set-aside` (with reason). "The topic is covered" is never `verbatim`.
