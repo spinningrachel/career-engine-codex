@@ -26,3 +26,7 @@ The optional Notion Actions schema uses the data-source API and Notion-Version 2
 ## ChatGPT compatibility QA
 
 Check both installation routes on every package update: pasteable instructions within their budget, three readable Knowledge files, complete upstream source coverage with stable labels, valid runtime/template files, current manifest/hash match, and a reproducible archive. Check all required reads and gates against the underlying upstream changes. Verify the standalone Python exports without pandoc; reject unsupported Markdown and missing templates/dependencies. Review optional Actions schema shape, authentication guidance, and operation names. Keep actual ChatGPT import/response, live connectors, host feature enablement, and offline fixtures as distinct outcomes. Report PASS/FAIL/BLOCKED/NOT RUN; never mark an untested live host as passed.
+
+## Run usage reports
+
+Retrieve references/run-metrics-host.md and apply it to setup, Step 9c, and final delivery. Preserve structural and interrupted-run reports, distinguish sequential role passes from spawned agents, and verify the JSON artifact before providing its sandbox download link. Exact token counts and cost stay explicitly unavailable with reasons unless verified run-scoped evidence exists. No Claude Stop hook populates this kit.

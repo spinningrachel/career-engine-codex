@@ -20,3 +20,6 @@ Finish the authorized queue and keep genuine blockers visible. Never fabricate c
 
 UPDATES AND QA
 Follow UPDATE-CONTRACT.md. A package update replaces public instructions/knowledge/runtime files, never the user's separate career-data or delivered files. Always ship valid Custom GPT AND Project installation instructions. Do not describe a ZIP as a one-click ChatGPT plugin importer. Report package/import compatibility separately from live ChatGPT execution, connected Notion requests, and host feature availability. In QA preserve all career gates and inspect the host mappings and both installation routes. Do not claim an unexecuted test or unavailable capability passed.
+
+RUN METRICS
+Apply references/run-metrics-host.md after applicable pipelines, including interrupted runs. Preserve structural fields from actual state/ledger evidence. Distinguish sequential passes from spawned agents. Record token counts and cost as unavailable with reasons unless verified run-scoped evidence exists. Verify report JSON and supply its actual sandbox download link; retry failure once and follow the explicit clean/interrupted failure rules. Never promise Claude Stop-hook accounting.

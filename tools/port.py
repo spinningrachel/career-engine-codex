@@ -20,6 +20,29 @@ def add_bootstrap(text):
         return text[:end] + '\n' + BOOT + text[end:]
     return BOOT + text
 
+def adapt_usage(target):
+    """Guarded edits retain new upstream doctrine; changed anchors require review."""
+    def replace(path, old, new):
+        p = target / path
+        text = p.read_text()
+        if text.count(old) != 1:
+            raise RuntimeError('Usage adaptation anchor changed; review required: ' + path)
+        p.write_text(text.replace(old, new))
+    post = 'skills/career-engine-orchestrator/orchestrator-post-run.md'
+    replace(post, 'Actual token counts are appended by a Stop hook configured during setup — the hook writes to this same file when the session ends.',
+            'Apply references/run-metrics-host.md for host-specific accounting and report delivery. No Claude Stop hook runs on Codex or ChatGPT.')
+    replace(post, '"token_counts": "pending — written by Stop hook at session end"',
+            '"token_counts": {"status": "unavailable", "reason": "Host exposes no verified run-scoped token measurement"},\n  "cost": {"status": "unavailable", "reason": "Verified usage and applicable pricing unavailable"}')
+    replace(post, 'Set each agent count from the actual invocations this run. Leave `token_counts` as the literal string `"pending — written by Stop hook at session end"` — the hook replaces this value when the session closes.',
+            'Set `agents_invoked` from actual logical role passes this run, retaining the legacy keys. Also record `execution` with separate `sequential_role_passes` and `spawned_agent_invocations` counts and evidence references, per references/run-metrics-host.md. Record verified usage only when available; otherwise retain explicit unavailable objects with concrete host-specific reasons.')
+    replace(post, '## Final Chat Delivery',
+            '## Final Chat Delivery\n\nApply references/run-metrics-host.md: verify the metrics file on clean and interrupted runs and link the verified artifact, or explicitly report failure with the prescribed fallback.')
+    setup = target / 'skills/career-engine-setup/SKILL.md'
+    text = setup.read_text()
+    start = text.index('**Token usage tracking (optional but recommended):**')
+    end = text.index('Confirm: "Phase 6 complete.', start)
+    setup.write_text(text[:start] + '**Run usage reporting:**\n\nRead references/run-metrics-host.md. The structural run report is required after applicable pipelines, including interrupted runs. Codex and ChatGPT do not run Claude’s Stop hook. Explain unavailable token counts and cost explicitly; never configure a Claude hook as a fallback on these hosts.\n\n' + text[end:])
+
 def generate(source):
     source = source.resolve()
     commit = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
@@ -98,6 +121,7 @@ def generate(source):
                 out = target / p.relative_to(overrides)
                 out.parent.mkdir(parents=True,exist_ok=True)
                 shutil.copy2(p,out)
+    adapt_usage(target)
     hashes = {str(p.relative_to(target)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(target.rglob('*')) if p.is_file()}
     (ROOT / 'upstream-lock.json').write_text(json.dumps({'repository':'spinningrachel/career-engine-claude','commit':commit,'generated_sha256':hashes},indent=2)+'\n')
     print('Ported',commit,'to',target,':',len(hashes),'files')

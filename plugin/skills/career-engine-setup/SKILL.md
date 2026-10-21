@@ -828,28 +828,9 @@ Present the block and say:
 
 Ask: "Have you added the permissions block? You can do this now and come back, or skip and add it before your first run."
 
-**Token usage tracking (optional but recommended):**
+**Run usage reporting:**
 
-The pipeline tracks actual token consumption per run. Each run writes a `run-metrics-<date>.json` file to your output folder with structural metrics (roles processed, agents invoked). A Stop hook then fills in the real token counts and an estimated cost.
-
-The hook ships with the plugin and **registers itself** via `hooks/hooks.json`, so on a current Claude Code there is nothing to configure — confirm by checking that `run-metrics-*.json` files show numeric `token_counts` after a run (not `"pending"` or `"unknown"`).
-
-It reads counts from the session transcript and every subagent transcript (not from the hook payload, which carries no token data — R-40), and writes them into the `run-metrics` file the run created this session.
-
-**Only if your Claude Code version does not auto-load plugin hooks**, add the block manually to `~/.claude/settings.json`, replacing `${CAREER_ENGINE_ROOT}` with your plugin install path (shown in Claude Code's plugin settings):
-
-```json
-"hooks": {
-  "Stop": [{
-    "hooks": [{
-      "type": "command",
-      "command": "bash ${CAREER_ENGINE_ROOT}/scripts/log-token-usage.sh"
-    }]
-  }]
-}
-```
-
-Ask: "Token tracking is built in and self-registering. Want me to verify it's firing, or generate the manual hook block as a fallback?"
+Read references/run-metrics-host.md. The structural run report is required after applicable pipelines, including interrupted runs. Codex and ChatGPT do not run Claude’s Stop hook. Explain unavailable token counts and cost explicitly; never configure a Claude hook as a fallback on these hosts.
 
 Confirm: "Phase 6 complete. The pipeline will run without approval prompts."
 
