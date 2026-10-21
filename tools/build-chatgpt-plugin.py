@@ -24,9 +24,28 @@ def members():
         data['skills/career-engine/UPDATE-CONTRACT.md'] = kit.read('UPDATE-CONTRACT.md')
         data['LICENSE'] = kit.read('LICENSE')
     data['skills/career-engine/SKILL.md'] = (ROOT / 'chatgpt/plugin-skill.md').read_bytes()
-    digest = hashlib.sha256(b''.join(n.encode()+b for n,b in sorted(data.items()))).hexdigest()
+    digest = hashlib.sha256(Path(__file__).read_bytes()+b''.join(n.encode()+b for n,b in sorted(data.items()))).hexdigest()
+    version = '1.0.0+upstream.'+provenance['upstream_commit'][:12]+'.chat.'+digest[:12]
+    stamp = ('\n\n## Loaded package version\n\n'
+             'Package build: `'+version+'`\n\n'
+             'Upstream commit: `'+provenance['upstream_commit']+'`\n\n'
+             'These values identify the package loaded with this skill, not an account release ID. '
+             'On “Career Engine version”, “was Career Engine updated?”, or “check for updates”, '
+             'report these embedded values first. When authorized fetch is available, read '
+             'https://raw.githubusercontent.com/spinningrachel/career-engine-codex/main/chatgpt-plugin-version.json '
+             'and report its package_version and upstream_commit separately as Latest published. '
+             'Equal package_version means this loaded build matches the published package; '
+             'a different value means a different published build is available (do not order SemVer build metadata). '
+             'If fetching fails, state Latest published: unknown; never assume this chat upgraded. '
+             'Never use the remote version as the loaded version. A newly published ZIP does not update this chat. '
+             'If this stamp is absent in an older installation, report Loaded build: unknown. '
+             'Applying an account update and opening a fresh chat may be necessary to load new instructions.\n')
+    data['skills/career-engine/SKILL.md'] += stamp.encode()
+    data['skills/career-engine-version/SKILL.md'] = (
+        '---\nname: career-engine-version\ndescription: Report the loaded Career Engine package version and check for a published update.\n---\n'
+        + stamp).encode()
     manifest = {'$schema': SCHEMA, 'name': 'career-engine',
-                'version': '1.0.0+upstream.'+provenance['upstream_commit'][:12]+'.chat.'+digest[:12],
+                'version': version,
                 'description': 'Career coaching, tailored CVs and cover letters, reviews, and document export.',
                 'author': {'name': 'Rachel Cheyfitz'}, 'license': 'MIT',
                 'repository': 'https://github.com/spinningrachel/career-engine-codex',
@@ -42,15 +61,26 @@ def members():
     data['provenance.json'] = (json.dumps(metadata, indent=2)+'\n').encode()
     return data
 
+def published_version(data, archive_bytes):
+    manifest = json.loads(data['plugin.json'])
+    provenance = json.loads(data['provenance.json'])
+    return {'package_version': manifest['version'],
+            'upstream_commit': provenance['upstream_commit'],
+            'archive': 'career-engine-chatgpt-plugin.zip',
+            'archive_sha256': hashlib.sha256(archive_bytes).hexdigest()}
+
 def build(output):
     output.parent.mkdir(parents=True, exist_ok=True)
+    data = members()
     with zipfile.ZipFile(output, 'w') as archive:
-        for name, content in sorted(members().items()):
+        for name, content in sorted(data.items()):
             info = zipfile.ZipInfo('career-engine/'+name, (2026,1,1,0,0,0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.create_system = 3
             info.external_attr = 0o100644 << 16
             archive.writestr(info, content)
+    (output.parent/'chatgpt-plugin-version.json').write_text(
+        json.dumps(published_version(data, output.read_bytes()), indent=2)+'\n')
     print('Built ChatGPT Plugins artifact:', output)
 
 if __name__ == '__main__':

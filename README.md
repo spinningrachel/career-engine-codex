@@ -110,3 +110,7 @@ This is automation by a new Codex run on each update; it does not wake this chat
 Offline validation covers actual native CLI installation, package/source integrity, hook payload adapters, fixture-based DOCX exports including the portable ChatGPT runtime, upstream doctrine QA, and personal-data scanning. It does **not** establish a live ChatGPT import/response, host hook enablement, authenticated Notion writes, or a personal career pipeline. These require the relevant account and separately authorized data/tools; unrun checks stay NOT RUN. Roles execute as distinct sequential passes unless the host and invoked workflow authorize delegation.
 
 MIT license; upstream authorship is retained.
+
+### Check the version from chat
+
+Ask **Career Engine version** or **was Career Engine updated?** The new plugin includes a dedicated version skill and an embedded build stamp in its main skill. It reports the loaded package build and imported source first, then checks [the latest published version record](https://raw.githubusercontent.com/spinningrachel/career-engine-codex/main/chatgpt-plugin-version.json) when fetching is available. Matching builds mean current; different builds are reported separately, without sorting SemVer build metadata. If the remote check or old installation's stamp is unavailable, it reports unknown. Publishing a ZIP does not update an installed plugin or an existing chat. The account's internal release version may differ from the embedded package build.

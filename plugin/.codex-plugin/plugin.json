@@ -1,6 +1,6 @@
 {
   "name": "career-engine",
-  "version": "1.0.0+upstream.50b0a8ced24d.codex.f7529bc798ca",
+  "version": "1.0.0+upstream.ac33a69b59eb.codex.b9eb857047f9",
   "description": "Career management, tailored CVs, cover letters, and DOCX export for Codex.",
   "skills": "./skills",
   "hooks": "./hooks/hooks.json",
