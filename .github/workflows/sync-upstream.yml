@@ -132,6 +132,7 @@ jobs:
             career-engine-codex.zip
             career-engine-chatgpt.zip
             career-engine-chatgpt-plugin.zip
+            chatgpt-plugin-version.json
   publish:
     needs: review
     if: needs.review.outputs.changed == 'true'

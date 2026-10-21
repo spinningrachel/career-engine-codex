@@ -164,6 +164,21 @@ def generate(source):
                        'else report "73" 0 "native cache version/provenance invalid"; fi\n')
         qa.write_text(text[:start] + replacement + text[end:])
     shutil.copy2(ROOT / 'codex/native-version.py', target / 'scripts/check-native-version.py')
+    # Resolve the reviewed upstream cleanup contradiction without allowing any
+    # write to an archived, trashed, or status-changed page. Match the exact
+    # conflicting clause so future upstream edits are not broadly rewritten.
+    role_path = target / 'agents/role-prioritizer.md'
+    role = role_path.read_text()
+    conflicting = "**First, release unfinished claims (2026-10-21):** set `Agent Status = No Status` on every role claimed in Step 1 that did not get its Step 3 write (skipped, failed, archived mid-run). Never touch a role this run did not claim."
+    resolved = "**First, release unfinished claims (2026-10-21):** for each role claimed in Step 1 that did not get its Step 3 write (skipped or failed), re-fetch the page immediately before cleanup. Set `Agent Status = No Status` only for this run's own unfinished claim when the page is live (not archived/trashed), its Status still matches the target from Step 0, and its Agent Status is still In Progress. If archived/trashed, Status-changed, inaccessible, or no longer this run's claim, make no write, never unarchive it, and report `claim not released — page archived/changed or ownership unverified` with the role in Step 4. Report cleanup failures too; never claim release succeeded without its result. The archival and liveness gates take precedence over cleanup. Never touch a role this run did not claim."
+    if conflicting in role:
+        role_path.write_text(role.replace(conflicting, resolved, 1))
+        shared = target / 'skills/database/SKILL.md'
+        shared_text = shared.read_text()
+        release_rule = "Never clear a claim another session wrote."
+        if shared_text.count(release_rule) != 1:
+            raise RuntimeError('Upstream shared claim release rule changed; review required')
+        shared.write_text(shared_text.replace(release_rule, release_rule + " **Cleanup safety:** wrap-up releases are still writes: re-fetch first, release only this run's own unfinished claim on a live page whose target Status is unchanged, and never write to or unarchive archived/trashed pages. When cleanup is unsafe, unavailable, or fails, leave the page untouched and name the unreleased claim and reason in the run report. Cleanup never overrides the adapter's liveness gate.", 1))
     overrides = ROOT / 'codex/overrides'
     if overrides.exists():
         for p in overrides.rglob('*'):

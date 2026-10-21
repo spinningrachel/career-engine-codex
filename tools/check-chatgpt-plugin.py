@@ -22,6 +22,14 @@ def check():
         assert data == builder.members(), 'ChatGPT plugin stale/incomplete; rebuild all packages'
         assert all((i.external_attr >> 16) == 0o100644 for i in archive.infolist())
     manifest = json.loads(data['plugin.json'])
+    published = json.loads((ROOT/'chatgpt-plugin-version.json').read_text())
+    assert published == builder.published_version(data, (ROOT/'career-engine-chatgpt-plugin.zip').read_bytes()), 'Stale published version record'
+    for name in ('career-engine', 'career-engine-version'):
+        loaded = data['skills/'+name+'/SKILL.md'].decode()
+        header = yaml.safe_load(loaded.split('---', 2)[1])
+        assert header['name'] == name and header['description'].strip()
+        assert len(loaded.encode()) <= 1024*1024
+        assert manifest['version'] in loaded and published['upstream_commit'] in loaded
     assert manifest['$schema'] == builder.SCHEMA and manifest['name'] == 'career-engine'
     assert re.fullmatch(r'\d+\.\d+\.\d+\+[A-Za-z0-9.-]+', manifest['version'])
     assert not {'skills','interface','apps','mcpServers'} & manifest.keys()
