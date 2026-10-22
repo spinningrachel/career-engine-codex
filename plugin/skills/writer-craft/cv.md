@@ -27,6 +27,11 @@ These define what a passing CV even is. Cutting them changes correctness, not po
 
 **RoleOverview mandatory for every named role** except the "Earlier:" line — a one-sentence company-context + scope line in italic immediately under RoleTitle. Count RoleTitles and RoleOverviews before returning a draft; they must match.
 
+**Detailed length limits (2026-10-20, per the user: "limit role overview length (for detailed only) to max 120 chars"; "limit role titles (detailed only) to max length 95 chars"; "cv length must be limited to max: 890 words (NOT counting education, and additional info - which users enter themselves)").** Three hard ceilings, Detailed only (Brief is held to one page by its own backstop, §5b):
+- **RoleOverview ≤ 120 characters** — one short clause of company context + scope. Cut the funding/ownership recital first, scope second.
+- **RoleTitle line ≤ 95 characters** — the rendered line a reader sees (`Title | Company | City | Dates`, annotation markup not counted). Shorten the title (drop the parenthetical function) before dropping the city.
+- **Whole CV ≤ 890 words** — Summary + Skills + Experience + Consulting (+ Tools/Publications when present), counted as whitespace tokens containing a letter or digit (a `|` or bullet dash is not a word; annotation fences and comments are not counted). **Education, Languages and Additional are not counted** — they are the user's own content, appended at export and never in a draft. Run `pregate-lint.py` and fix every `CV-TOTAL-WORDCOUNT` hit before returning. To get under the ceiling use the trim order in §6 ("Cut priority order"), and use the role-tailoring plan's levers (§5c) before thinning proof: fewer bullets on older/less-relevant roles, a Fold for roles that answer nothing, a one-line entry for a role that answers little. A role the plan retitles keeps the bullets that make the title true (§5c); the cut falls on the roles the target role cares least about.
+
 **Consulting-section placement and completeness.** Any consulting/fractional engagement flagged as requiring a standalone entry in `02-professional-background.md` must appear — never omit an entry flagged mandatory.
 
 ---
@@ -63,7 +68,9 @@ Added 2026-09-17, per the user's direct instruction after peer feedback on a rea
 
 **The premise.** The CV is an argument that this person has already done this job. Assume she has the right experience; the CV's work is to make that visible in ten seconds. A title that names a different function makes a recruiter stop reading before the bullets can prove anything.
 
-**The role-tailoring plan governs.** During intake the coach writes a per-role plan to the `CV Titles` property (the user reviews and may edit it in her tracker; her ad-hoc wishes live in her own `CV Title Preferences` field). The pipeline hands both to you as `CV_TITLES_PATH`. **When a plan is present, execute it verbatim** — every title, every disposition, the stated level. Never re-derive, soften, or second-guess it: a plan the user has seen is hers. **When no plan is present** (a role researched before this feature, an inline run), derive one yourself with the test below and state it at the top of `cv-changes.md` or, on a draft, in your one-line summary.
+**The role-tailoring plan governs.** During intake the coach writes a per-role plan to the `CV Titles` property (the user reviews and may edit it in her tracker; her standing title rules live in `pipeline-preferences.json` → `cv_title_rules` (2026-10-19; the per-role `CV Title Preferences` tracker field is a legacy read) — the legacy field and any of her ad-hoc wishes live in her own `CV Title Preferences` field). The pipeline hands both to you as `CV_TITLES_PATH`. **When a plan is present, execute it verbatim** — every title, every disposition, the stated level. Never re-derive, soften, or second-guess it: a plan the user has seen is hers. **When no plan is present** (a role researched before this feature, an inline run), derive one yourself with the test below and state it at the top of `cv-changes.md` or, on a draft, in your one-line summary.
+
+**Matching mode (2026-10-19).** `cv-titles.md` opens with `MODE: capabilities|titles` (the config's `role_matching`). When no plan is on file and `MODE: titles`, Keep is the default for every employer (Fold still allowed); Retitle/Descriptor only from a preferences-block rule. `capabilities` (or no MODE line) keeps the Retitle default above.
 
 **Four dispositions — one per employer in her record, every employer accounted for:**
 

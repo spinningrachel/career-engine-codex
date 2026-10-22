@@ -30,6 +30,8 @@ Claude history-search tools and token-accounting hooks have no equivalent guaran
 
 ## Hooks and prerequisites
 
+Read `${CAREER_ENGINE_ROOT}/references/upstream-stop-policy.md` and apply its queue-completion requirements throughout a run, including prioritization writes for every documented fetch outcome. This preserves the upstream Stop policy as explicit instructions; it does not imply a native prompt Stop hook is available. The Codex host mappings and genuine-blocker rules in this contract govern its legacy tool names and response format.
+
 The native plugin declares a PreToolUse hook that normalizes Codex shell/apply_patch payloads into the upstream detector. Hooks require a Codex host/version supporting plugin hooks and hook enablement. Plugin installation alone does not prove a hook ran. The artifact scanner is also mandatory. Shell detection is conservative and cannot identify every computed write; user review and package scanning remain required.
 
 Python 3.10+ with python-docx and lxml, and pandoc on PATH, are required for export. Run the existing export fixture tests and actual DOCX generation to validate. Claude CLI commands, .plugin uploads, Cowork installation, and /skill-creator are replaced by the Codex installation and external career-data procedures in this contract.

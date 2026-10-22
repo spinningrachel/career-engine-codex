@@ -49,7 +49,7 @@ Run every item in order before returning output. The gatekeeper runs the same ch
 
 ## Role tailoring (`writer-craft/cv.md` §5c)
 
-- [ ] `CV_TITLES_PATH` was read. Plan present: every title matches its plan line exactly (the user's `CV Title Preferences` line wins for the same employer); every `Fold` employer has no entry. Plan absent: one disposition derived per employer and stated in the summary line / `cv-changes.md`
+- [ ] `CV_TITLES_PATH` was read. Plan present: every title matches its plan line exactly (the user's standing `cv_title_rules` / legacy `CV Title Preferences` line wins for the same employer); every `Fold` employer has no entry. Plan absent: one disposition derived per employer (default Keep when `MODE: titles`) and stated in the summary line / `cv-changes.md`
 - [ ] No title sits above the recorded title's seniority; no employer name or date differs from the role record
 - [ ] Every employer in the role record appears as an entry or by name in the aggregation line — count them
 - [ ] Every retitled or descriptor entry has at least one bullet showing the titled function
@@ -73,4 +73,5 @@ Run every item in order before returning output. The gatekeeper runs the same ch
 
 ## Body word count
 
-- [ ] Body word count (summary + experience bullets only, excluding banners/titles/dates/skills blocks) is 800 words or fewer — if over, cut the least-relevant bullets from lowest-priority roles before returning
+- [ ] **Detailed only (2026-10-20, replaces the old 800-word body check, which no gate ever enforced):** whole CV is 890 words or fewer, not counting Education/Languages/Additional (the user's own content, never in a draft) — `pregate-lint.py` reports `CV-TOTAL-WORDCOUNT`; if over, apply the `writer-craft/cv.md` §6 trim order and the §5c levers (fewer bullets on less-relevant roles, Fold) before returning
+- [ ] **Detailed only:** every RoleOverview is 120 characters or fewer, and every RoleTitle line is 95 characters or fewer (rendered text) — `CV-ROLE-OVERVIEW-LENGTH` / `CV-ROLE-TITLE-LENGTH`

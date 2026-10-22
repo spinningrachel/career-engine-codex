@@ -342,10 +342,10 @@ expect_ge "21s" "skills/letter-core/SKILL.md" "exhaustive search of all availabl
 expect_ge "21s" "skills/gatekeeper-checks/letter-gates.md" "Opener source check" 1
 # 2026-07-24 (third pass): Role emphasis reduced to two lines (Emphasis + Likely KPIs), <=100 words, per the user;
 # capability-mapping and de-emphasis retired; hyper-focus standing rule added.
-expect_ge "21s" "skills/career-coach/coach-analysis.md" "exactly these TWO labeled lines" 1
+expect_ge "21s" "skills/career-coach/coach-analysis.md" "exactly these TWO labeled parts" 1
 expect_ge "21s" "skills/career-coach/coach-analysis.md" "max 100 words\|≤100 words" 1
 expect_eq0 "21s" "skills/career-coach/coach-analysis.md" "^\*\*Capability match:\*\*\|^\*\*De-emphasized:\*\*"
-expect_ge "21s" "skills/gatekeeper-checks/coach-gates.md" "fixed two-line structure" 1
+expect_ge "21s" "skills/gatekeeper-checks/coach-gates.md" "fixed two-part bulleted structure" 1
 expect_ge "21s" "skills/career-coach/SKILL.md" "Hyper Focus — Governs Every Output" 1
 expect_ge "21s" "agents/career-coach.md" "Hyper focus" 1
 # 2026-07-24 (fourth pass): no Para 1 line in the Letter Outline — the Opener line IS paragraph 1's spec
@@ -358,6 +358,15 @@ expect_ge "21s" "agents/letter-writer.md" "Paste it as your opening VERBATIM" 1
 expect_ge "21s" "skills/letter-core/SKILL.md" "paste it verbatim as the opening" 1
 expect_ge "21s" "skills/career-engine-new-application/SKILL.md" "Opener verbatim check" 1
 expect_ge "21s" "skills/career-engine-edit/SKILL.md" "Opener verbatim check" 1
+# 2026-10-20: Role emphasis bullets + JTBD alignment; Detailed CV length ceilings; senior-role success-measure paragraph
+expect_ge "21s" "skills/career-coach/coach-analysis.md" "Emphasis = the role's jobs to be done, ranked" 1
+expect_ge "21s" "skills/career-coach/coach-output.md" "3–4 bullets, most important first" 1
+expect_ge "21s" "skills/gatekeeper-checks/cv-gates.md" "CV-TOTAL-WORDCOUNT" 1
+expect_ge "21s" "skills/gatekeeper-checks/cv-gates.md" "890" 1
+expect_ge "21s" "skills/writer-craft/cv.md" "Whole CV ≤ 890 words" 1
+expect_ge "21s" "skills/letter-core/SKILL.md" "Senior roles — one paragraph on what success looks like" 1
+expect_ge "21s" "skills/gatekeeper-checks/letter-gates.md" "Success measure (senior roles only" 1
+expect_ge "21s" "skills/gatekeeper-checks/coach-gates.md" "senior role with no success-measure line" 1
 # 2026-07-24: the coach's Opener line is a verbatim bank-variant copy/paste (per the user's direct instruction)
 expect_ge "21s" "agents/career-coach.md" "COPY/PASTE selection, never composition" 1
 expect_ge "21s" "skills/gatekeeper-checks/coach-gates.md" "not a verbatim bank copy" 1
@@ -389,6 +398,9 @@ expect_ge "21t" "scripts/codex-question-gate.py" "permissionDecision" 1
 expect_ge "21t" "hooks/hooks.json" '"PreToolUse"' 1
 expect_ge "21t" "hooks/hooks.json" "request_user_input" 1
 expect_ge "21t" "scripts/codex-question-gate.py" "gate-ask-user-question.sh" 1
+# 2026-10-15: the manifest must NOT name hooks/hooks.json — Claude Code loads that file on its own,
+# and a manifest "hooks" entry pointing at it fails the whole plugin load ("Duplicate hooks file").
+expect_eq0 "21t" ".claude-plugin/plugin.json" '"hooks"'
 expect_ge "21t" "scripts/gate-ask-user-question.sh" '"permissionDecision": "deny"' 1
 
 # ================================================================
@@ -702,6 +714,42 @@ expect_ge "35d" "CLAUDE.md" "database_new_view_url" 1
 expect_eq0 "35d" "agents/role-prioritizer.md" "the underlying property values are what you filter on, not the view name"
 
 # ================================================================
+# Check 35e — Prioritization runs with zero human input (2026-10-14, per the user)
+# ================================================================
+expect_ge "35e" "agents/role-prioritizer.md" "Prioritization outcome table" 3
+expect_ge "35e" "agents/role-prioritizer.md" "JD Fetch Status\` is written for every skipped role" 1
+expect_ge "35e" "agents/role-prioritizer.md" "\`Fifth\`→\`6\`" 2
+expect_ge "35e" "agents/role-prioritizer.md" "This report ends the run" 1
+expect_ge "35e" "agents/role-prioritizer.md" "need your call first" 1
+expect_ge "35e" "skills/role-prioritizer/SKILL.md" "no human input" 1
+expect_ge "35e" "references/upstream-stop-policy.md" "role-prioritizer subagents" 1
+expect_ge "35e" "scripts/gate-ask-user-question.sh" "INPUT_ASK" 2
+expect_ge "35e" "agents/role-prioritizer.md" "open application only when the user has said so" 1
+expect_ge "35e" "agents/role-prioritizer.md" "never the archived/changed row" 1
+expect_ge "35e" "agents/qa-plugin.md" "Check 35e" 1
+expect_ge "35e" "agents/role-prioritizer.md" "Confirmed closure is a write, never a question" 1
+expect_ge "35e" "agents/role-prioritizer.md" "earned by searching" 1
+expect_ge "35e" "skills/database/SKILL.md" "| \`Closed\` |" 1
+expect_ge "35e" "skills/career-engine-intake/SKILL.md" "jobs-guest/jobs/api/jobPosting" 1
+expect_ge "35e" "skills/career-engine-intake/SKILL.md" "closed-confirmed" 4
+expect_ge "35e" "skills/career-engine-setup/SKILL.md" "Needs Editing, Closed" 1
+expect_ge "35e" "skills/career-engine-edit/SKILL.md" "Closure check before any drop" 1
+expect_ge "35e" "skills/source-open-roles/SKILL.md" "closed rows included" 1
+expect_ge "35e" "agents/source-open-roles.md" "previously closed" 1
+expect_eq0 "35e" "agents/role-prioritizer.md" "paste the JD and I"
+# 2026-10-15 second run: job ID in any LinkedIn URL shape; URL class from the URL, never a note;
+# a follow-up turn after a user correction is still the run.
+expect_ge "35e" "skills/career-engine-intake/SKILL.md" "currentJobId=<JOBID>" 1
+expect_ge "35e" "skills/career-engine-intake/SKILL.md" "IS a job listing" 1
+expect_ge "35e" "agents/role-prioritizer.md" "never from a note" 1
+expect_ge "35e" "agents/role-prioritizer.md" "A follow-up turn is still the run" 1
+expect_ge "35e" "agents/role-prioritizer.md" "IO River follow-up" 1
+expect_ge "35e" "references/upstream-stop-policy.md" "follow-up turn" 1
+expect_ge "35e" "skills/role-prioritizer/SKILL.md" "A follow-up turn is still the run" 1
+expect_ge "35e" "agents/career-coach.md" "jobs-guest/jobs/api/jobPosting" 1
+expect_ge "35e" "skills/career-engine-edit/SKILL.md" "job ID in any URL form" 1
+
+# ================================================================
 # Check 38 — Mechanical word count enforced, not self-estimated
 # ================================================================
 expect_ge "38" "agents/letter-writer.md" "^tools:.*Bash" 1
@@ -1010,6 +1058,40 @@ else
 fi
 
 # ================================================================
+# Check 71 — Capability profile: function fit is coverage, not titles (2026-10-15, per the user)
+# ================================================================
+expect_file "71" "references/capability-profile.md"
+expect_file "71" "skills/career-coach/coach-capability-profile.md"
+expect_ge "71" "references/capability-profile.md" "{{CAPABILITY_LINE" 1
+expect_ge "71" "skills/career-coach/coach-capability-profile.md" "pairwise de-duplication test" 1
+expect_ge "71" "skills/career-coach/coach-capability-profile.md" "portability test" 2
+expect_ge "71" "skills/career-coach/coach-capability-profile.md" "three-way test" 1
+expect_ge "71" "skills/career-coach/coach-capability-profile.md" "wait for confirmation" 1
+expect_ge "71" "agents/role-prioritizer.md" "Function fit is responsibility coverage against the capability profile" 1
+expect_ge "71" "agents/role-prioritizer.md" "The title list is advisory" 1
+expect_ge "71" "agents/role-prioritizer.md" "CAPABILITY_PROFILE = none" 2
+expect_ge "71" "skills/role-prioritizer/SKILL.md" "Function fit — coverage, not titles" 1
+expect_ge "71" "agents/career-coach.md" "generate my capability profile" 1
+expect_ge "71" "skills/career-coach/SKILL.md" "coach-capability-profile.md" 1
+expect_ge "71" "skills/career-engine-setup/SKILL.md" "Phase 4 — Capability profile" 1
+expect_ge "71" "skills/career-engine-setup/SKILL.md" "un-profiled" 1
+expect_ge "71" "agents/qa-plugin.md" "Check 71" 1
+expect_ge "71" "agents/role-prioritizer.md" "In both branches:" 1
+expect_ge "71" "agents/role-prioritizer.md" "never divide by zero" 1
+expect_ge "71" "agents/role-prioritizer.md" "capability profile: present|missing" 1
+expect_ge "71" "references/capability-profile.md" "DROPPED FROM THE GENERATED FILE" 1
+expect_ge "71" "skills/career-coach/coach-capability-profile.md" "two-file fix" 1
+# 2026-10-19, per the user: cap 30, early-career cap 25 — the doctrine, the template and the setup skill must agree.
+expect_ge "71" "skills/career-coach/coach-capability-profile.md" "Cap the file at 30 lines" 1
+expect_ge "71" "skills/career-coach/coach-capability-profile.md" "Early-career cap" 1
+expect_eq0 "71" "skills/career-coach/coach-capability-profile.md" "Cap the file at 25 lines"
+expect_ge "71" "references/capability-profile.md" "At most 30 capability lines" 1
+expect_ge "71" "skills/career-engine-setup/SKILL.md" "≤30 lines" 1
+expect_ge "71" "references/career-data-skill-handoff.md" "references/capability-profile.md contents" 1
+expect_eq0 "71" "agents/role-prioritizer.md" "Step 0 item 4 determined the secondary mode"
+expect_eq0 "71" "agents/role-prioritizer.md" "generate the capability profile yourself"
+
+# ================================================================
 # Check 70 — Role-tailoring plan (CV Titles) wired end-to-end (2026-09-17, per the user's
 # direct instruction: titles aligned to the target role, unrelated roles folded, level matched —
 # inside fixed honesty limits; coach proposes at intake, user-owned preferences field)
@@ -1031,9 +1113,61 @@ expect_ge "70" "skills/career-engine-new-application/SKILL.md" "Step 0.titles" 1
 expect_ge "70" "skills/career-engine-edit/SKILL.md" "Step E0.titles" 1
 expect_ge "70" "skills/career-engine-intake/SKILL.md" "Never write \`CV Title Preferences\`" 1
 expect_ge "70" "skills/database/SKILL.md" "No agent ever writes it" 1
-expect_ge "70" "skills/career-engine-setup/SKILL.md" "CV Title Preferences" 3
-expect_ge "70" "references/job-applications-template.csv" "CV Titles,CV Title Preferences" 1
+expect_ge "70" "skills/career-engine-setup/SKILL.md" "CV Title Preferences" 1
+expect_ge "70" "references/job-applications-template.csv" "CV Titles," 1
 expect_ge "70" "references/cv-self-check.md" "Role tailoring" 1
+
+# ================================================================
+# Check 72 — Frontmatter parses as YAML in every shipped .md that carries one (2026-10-15)
+# The Desktop installer rejected a shipped build: career-coach.md's description carried
+# unescaped inner double quotes. Every prior check here was a grep; this one parses.
+# Runs against $TARGET, so it validates the unzipped artifact as well as the repo.
+# ================================================================
+# Always the repo's own script (this file is invoked from the repo), never one inside
+# $TARGET — a stale or lenient copy in an old artifact must not override the verdict.
+FM_RC=0; python3 "$(dirname "$0")/check-frontmatter.py" "$TARGET" >/dev/null 2>&1 || FM_RC=$?
+if [ "$FM_RC" -eq 0 ]; then report "72" 1 "";
+elif [ "$FM_RC" -eq 2 ]; then report "72" 0 "check-frontmatter.py could not run (PyYAML missing or no files) — run: python3 scripts/check-frontmatter.py $TARGET";
+else report "72" 0 "frontmatter invalid — run: python3 scripts/check-frontmatter.py $TARGET"; fi
+expect_file "72" "scripts/check-frontmatter.py"
+expect_ge "72" "scripts/build-plugin.sh" "check-frontmatter.py" 1
+expect_ge "72" "scripts/check-invariants.sh" "check-frontmatter.py" 1
+expect_ge "72" "scripts/qa-mechanical.sh" "check-frontmatter.py" 1
+expect_ge "72" "agents/qa-plugin.md" "Check 72" 1
+
+# ================================================================
+# Check 74 — Capability matching by default: role_matching / scope_preferences / cv_title_rules
+# wired end-to-end (2026-10-19, per the user)
+# ================================================================
+expect_ge "74" "references/pipeline-preferences.json" "role_matching" 1
+expect_ge "74" "references/pipeline-preferences.json" "scope_preferences" 1
+expect_ge "74" "references/pipeline-preferences.json" "cv_title_rules" 1
+for f in agents/source-open-roles.md skills/source-open-roles/SKILL.md agents/role-prioritizer.md skills/career-engine-intake/SKILL.md skills/career-engine-new-application/SKILL.md skills/career-engine-edit/SKILL.md; do
+  expect_ge "74" "$f" "role_matching" 1
+done
+expect_ge "74" "skills/career-engine-new-application/SKILL.md" "MODE:" 1
+expect_ge "74" "skills/career-engine-edit/SKILL.md" "MODE:" 1
+expect_ge "74" "skills/source-open-roles/SKILL.md" "scope_preferences" 1
+expect_ge "74" "agents/role-prioritizer.md" "scope_preferences" 1
+expect_ge "74" "skills/career-coach/coach-analysis.md" "USER SCOPE PREFERENCES" 1
+expect_ge "74" "skills/source-open-roles/SKILL.md" "Capabilities mode" 1
+expect_ge "74" "agents/qa-plugin.md" "Check 74" 1
+
+# Check 73 — Manifest version is bumped on every shipped build (2026-10-15)
+# The CLI caches a marketplace plugin under <cache>/<marketplace>/<plugin>/<version>/.
+# Two fixes shipped at version 1.0.0; `claude plugin update` kept serving the 1.0.0
+# cache, so the user saw the duplicate-hooks error again after the fix had merged.
+# Mechanical part: both manifests carry one identical version string. The bump itself
+# (staged version semver-greater than origin/main's whenever shipped files are
+# staged, read from the index) is asserted by the pre-commit hook,
+# scripts/check-invariants.sh, which has the git context this artifact-side
+# script does not.
+# ================================================================
+if python3 "$(dirname "$0")/check-native-version.py" "$TARGET"; then report "73" 1 "";
+else report "73" 0 "native cache version/provenance invalid"; fi
+expect_ge "73" "scripts/check-invariants.sh" "version-bump" 1
+expect_ge "73" "agents/qa-plugin.md" "Check 73" 1
+expect_ge "73" "skills/plugin-builder/SKILL.md" "bump" 1
 
 echo "qa-mechanical: $PASS passed, $FAIL failed"
 

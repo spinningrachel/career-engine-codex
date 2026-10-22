@@ -104,13 +104,15 @@ Immediately after Step 0.data, resolve which CV format this role gets. This is t
 
 ### Step 0.titles — Write the role-tailoring plan to `$PIPE/cv-titles.md` (single resolution point)
 
-Same design as Step 0.type: this is the **only** place this pipeline reads the role's `CV Titles` and `CV Title Preferences` properties. Read both from this role's section of `$QUEUE_PIPE/role-properties.md` (never a fresh database fetch) and write:
+Same design as Step 0.type: this is the **only** place this pipeline reads the role's `CV Titles` and legacy `CV Title Preferences` properties and the config's `role_matching` / `cv_title_rules`. Read the properties from this role's section of `$QUEUE_PIPE/role-properties.md` (never a fresh database fetch), the config keys from `pipeline-preferences.json` (absent = `capabilities` / none), and write:
 
 ````markdown
 # Role-tailoring plan — <Company> — <Role Title>
 
+MODE: <role_matching — `capabilities` or `titles`>
+
 ## CV Title Preferences (the user's own — outranks the plan line for the same employer)
-<verbatim, or "none">
+<`cv_title_rules` lines first, one per entry: `<employer> — <keep | retitle-as "<title>"> [— <note>]`; then the legacy per-role property verbatim under a line `(legacy tracker field)`; or "none">
 
 ## CV Titles (the coach's plan, as the tracker holds it now — including any edits the user made)
 <verbatim, or "PLAN: none">
@@ -245,12 +247,12 @@ Read `$PIPE/template-selection.txt` after this step — its value is threaded in
 
 **Before spawning, pass the following for this role:**
 - **Why I Want This Role property** — use the value retrieved in Pre-Step 5. Do not re-read from Notion.
-- **Role emphasis** property — from the career coach (Step 0.8 output). The role's Mandate / Likely KPIs — the ONE piece of coach analysis the writer receives.
+- **Role emphasis** property — from the career coach (Step 0.8 output). The role's ranked jobs-to-be-done bullets and Likely KPIs bullets — the ONE piece of coach analysis the writer receives.
 - **Strategy** property — from the career coach. A single routing token (`IC`/`Strategic`/`Hybrid`) governing letter type and word ceiling only — never content.
 
 **Priority rule:** the **Motivation Bank** (`background/background-motivation-bank.md`, loaded by the letter-writer from career-data) is the primary content source; **Why I Want This Role** is the role-specific source on top of it **when present**. Strategy provides the letter type only — it does not govern content selection.
 
-**⛔ Letter-writer input contract (2026-07-14) — three content inputs, nothing else.** The letter-writer receives exactly three content-bearing inputs: the **final CV**, **`Role emphasis`**, and **`Why I Want This Role`** — plus the coach's pre-draft outline `$PIPE/coach-outline.md` (structural spine — bare paragraph subjects, restored as writer input 2026-07-16 per the user's direct instruction; structure only, never a content source), company name + role title (identity), the `Strategy`, `gap_handling_mode`, and template-selection routing tokens, `$PIPE/voice-calibration.md` (her own career-data material), and on revision rounds the violation/review files about its own letter. It NEVER receives, under any framing: `Role summary`, `Landscape`, `Culture`, `Keywords`, `Gap handling` property content (the one-word `gap_handling_mode` token is routing, not content), `Relationship type`, `JD Body` or any JD text, the recruiter review, `$PIPE/coach-output.md`, or `$PIPE/role-properties.md`. This is a per-user directive after a real shipped batch recited pipeline research (org size, acquisition history, coach analysis) back at the reader — the writer aims with Role emphasis and writes from her material; everything else the pipeline knows stays out of its context.
+**⛔ Letter-writer input contract (2026-07-14) — three content inputs, nothing else.** The letter-writer receives exactly three content-bearing inputs: the **final CV**, **`Role emphasis`**, and **`Why I Want This Role`** — plus the coach's pre-draft outline `$PIPE/coach-outline.md` (structural spine — per-paragraph claim / LEAD / SUPPORT argument plan (2026-10-21), restored as writer input 2026-07-16 per the user's direct instruction; structure only, never a content source), company name + role title (identity), the `Strategy`, `gap_handling_mode`, and template-selection routing tokens, `$PIPE/voice-calibration.md` (her own career-data material), and on revision rounds the violation/review files about its own letter. It NEVER receives, under any framing: `Role summary`, `Landscape`, `Culture`, `Keywords`, `Gap handling` property content (the one-word `gap_handling_mode` token is routing, not content), `Relationship type`, `JD Body` or any JD text, the recruiter review, `$PIPE/coach-output.md`, or `$PIPE/role-properties.md`. This is a per-user directive after a real shipped batch recited pipeline research (org size, acquisition history, coach analysis) back at the reader — the writer aims with Role emphasis and writes from her material; everything else the pipeline knows stays out of its context.
 
 **Include this verbatim at the front of the letter-writer prompt:**
 > STRUCTURE IS NON-NEGOTIABLE. Regardless of any reviewer feedback you receive, the letter structure defined in `skills/letter-core/SKILL.md` must be observed in full — in particular the tone, voice, and content of the opening paragraph. Reviewer feedback informs what proof to include or emphasise; it does not change how the letter is structured or how the opening is written.
@@ -259,12 +261,12 @@ Spawn `letter-writer` with `option=cover-letter`, passing exactly the input cont
 - `CAREER_DATA=${CAREER_DATA}`, `gap_handling_mode=$GAP_HANDLING_MODE`
 - `LETTER_PATH=$PIPE/letter-draft.md` — the writer writes the draft there and returns the path (R-41)
 - The **final revised CV** path `$PIPE/cv-final.md` to read (content input 1 — for CV/letter coherence and the no-repetition rule)
-- **`Role emphasis`** from the coach's Step 0.8 output (content input 2 — the role's Mandate / Likely KPIs; the writer's only role-analysis input)
+- **`Role emphasis`** from the coach's Step 0.8 output (content input 2 — the role's ranked jobs-to-be-done bullets and Likely KPIs bullets; the writer's only role-analysis input)
 - **Why I Want This Role** from Notion (read above; content input 3) — include verbatim if populated (the letter-writer loads its primary source, the Motivation Bank, from career-data itself). If empty, pass it empty — the letter-writer's Sufficiency Gate decides write-or-skip.
 - Company name and role title
 - **Strategy** (routing token — letter type + word ceiling only)
 - The coach's **template selection** (`$PIPE/template-selection.txt`) from Step 4.99 — a single token; the writer no longer chooses the template itself.
-- The coach's **outline** (`$PIPE/coach-outline.md`) from Step 4.99 — the writer's structural spine (restored 2026-07-16); bare paragraph subjects, structure only.
+- The coach's **outline** (`$PIPE/coach-outline.md`) from Step 4.99 — the writer's structural spine (restored 2026-07-16); per paragraph a claim, the work to LEAD with, and SUPPORT kept secondary (2026-10-21) — structure and aim only, never a content or phrasing source; facts come from career-data.
 
 **Do not pass anything else** — no `Role summary`, no `Gap handling` property content (the `gap_handling_mode` token is already in the list above), no `Relationship type`, no recruiter review (its "Interview-trigger gaps" section is user-facing interview-prep feedback surfaced in Step 7d's feedback file, not letter material). See the input contract above.
 
@@ -523,9 +525,10 @@ Write the following properties using `notion-update-page`. All values are alread
 | `Hiring Manager's Name` | Hiring manager name and title from the coach's research. Write "Not identified" if none found. |
 | `Last Pipeline Run` | Today's date in ISO format (YYYY-MM-DD). |
 | `Status` | `CV Ready for Review` — set once DOCX export and writeback are confirmed complete. |
+| `Agent Status` | `No Status` — written in the SAME call as `Status`, releasing this run's Step O3 claim (2026-10-21; skip silently if the tracker has no such property). Flagged deliveries release too. |
 | `Draft Directory` | `$DRAFT_DIR_URL` (constructed in Step 7a). **Omit this property from the `notion-update-page` call entirely if `$DRAFT_DIR_URL` is empty** — do not write an empty string to the property. If `$DRAFT_DIR_URL` is empty, include a named note in the final chat delivery: "Draft Directory not written for [Company] — `draft_dir_url_base` not configured or empty. Run `/career-engine:setup --phase 5` to configure it." |
 
-**Property discipline** — write only the properties listed above. Nothing else.
+**Property discipline** — write only the properties listed above (including the `Agent Status` release). Nothing else.
 
 - Do NOT write CV text, cover letter text, revision logs, or reviewer feedback to Notion. Reviewer feedback goes to the feedback markdown file (Step 7d), not to Notion.
 - Do NOT write to the `Note` field. It is the user's space.

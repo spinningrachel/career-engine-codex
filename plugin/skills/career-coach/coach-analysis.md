@@ -48,8 +48,9 @@ Is this role an open application, unsolicited application, or speculative applic
    - **Split the JD's requirements into hard MUSTs vs. everything else.** Hard MUSTs are explicit: "must have," mandatory years-in-X, named certifications, languages, clearance, work authorization.
    - **A hard MUST genuinely absent from the user's documented background caps the tier:** one missing peripheral MUST → cap at Fourth; a missing MUST central to the role, or multiple missing → Fifth. `Priority Reason` names the missing MUST explicitly. Missing MUSTs are never silently averaged into the coverage percentage.
    - **Score the remaining requirements as coverage** of the user's documented background (`02` and its background files — documented evidence only, the fabrication rules apply to scoring as much as to writing): roughly ≥80% covered → Second or better, 60–79% → Third, 40–59% → Fourth, <40% → Fifth.
+   - **Scope preferences (2026-10-19).** When `queue.md` carries a `USER SCOPE PREFERENCES` section (the config's `scope_preferences`) and `role_matching` is not `titles`: a core responsibility of the role that hits `avoid` is named in `Priority Reason` and caps the tier like a missing peripheral MUST (cap Fourth); a `want` hit is noted in `Priority Reason` and may lift the tier one step within the coverage band's ceiling. Both are the user's own standing words, applied as written.
    - **Domain fit and geography adjust the coverage tier by at most one tier in either direction.** The framework's hard floors (open application, crypto, structural geography) are unchanged and still absolute.
-   - This methodology is **intake-only**: the Prioritization pipeline applies the base framework without it (no background read there) and its provisional score is always overwritten here.
+   - This methodology is **intake-only**: the Prioritization pipeline applies the base framework without it (no background read there) — scoring function fit as coverage of the JD's items against the user's `capability-profile.md` instead (2026-10-15) — and its provisional score is always overwritten here.
 2. **Apply favorite-brand boost** — read `favorite_brands` from `pipeline-preferences.json`. If the company matches any entry (case-insensitive), apply +1 boost: final priority = scored priority − 1, minimum 1. Append "(+1 favorite brand)" to `Priority Reason`. Open-application roles are exempt — the Fifth override from Step 1 is absolute.
 3. Write a tight one-sentence **`Priority Reason`** grounded in the user's documented background and the JD, including the brand boost note if applied. This is the final `Priority Reason` for Notion.
 4. Mark as `confirmed` if a prior value existed and your score agrees, `revised` if your research produces a different score, or `new` if no prior value existed.
@@ -177,7 +178,7 @@ Surface this reading in `Role emphasis`, and let it guide the `Strategy` letter-
 |---|---|
 | `Priority` | Numeric urgency/fit rank (1 = highest). The sort handle; the *why* lives in `Priority Reason`. |
 | `Priority Reason` | One sentence justifying the score — name the driver(s) and any reason it isn't higher. |
-| `Role emphasis` | A paraphrased and/or directly quoted summary of what's most important in the role (with the operating-model translation of any ambiguous term, in generic discipline vocabulary) plus the likely KPIs. Exactly two labeled lines, ≤100 words. Never strategy, capability mapping, de-emphasis, CV type, company facts, confidence tags, or rank commentary. |
+| `Role emphasis` | 3–4 ranked jobs-to-be-done bullets (operating-model translation of any ambiguous term folded in, in generic discipline vocabulary) plus 3–5 Likely KPIs bullets. Two parts, ≤100 words. Never strategy, capability mapping, de-emphasis, CV type, company facts, confidence tags, or rank commentary. |
 | `CV Type` | Variant mode only — the coach's Detailed/Brief call for this role, written by intake to the user's per-role `CV Type` select (write-only-to-empty; the user's hand-set value always wins). |
 | `CV Titles` | The role-tailoring plan — one line naming the level the target role reads at, then one disposition line per employer in her record (Retitle / Descriptor / Keep / Fold). The cv-writer executes it verbatim; the user reviews and may edit it in her tracker. |
 | `Role summary` | The plain-language "what the job is in practice" — scope, stage, ownership areas, constraints (solo, budget), business timing. The version you'd tell a friend. ≤400 chars. |
@@ -219,11 +220,11 @@ If `GAP_HANDLING = disabled` (set in the Settings pre-flight), leave `Gap handli
 **⛔ KEYSTONE — returned values are scannable briefs, not essays.** Every text property the coach produces must be **formatted to scan AND tight.** This is mandatory, not cosmetic.
 - **Format (mirror the `Landscape` sectioned style):** use **bold labels**, a **blank line between distinct topics**, and **bullets** for any list. Never a single dense paragraph.
 - **Brevity:** say it in the fewest words that carry the signal — cut throat-clearing, hedges, qualifiers, and restatement.
-- **Hard caps:** `Role emphasis` → exactly the two labeled lines (**Emphasis**, **Likely KPIs** one comma-list line), blank line between them, ≤100 words total; `Culture` → 2–3 one-line bullets, blank-line-separated; `Keywords` → ≤9 total (Critical ≤4 / Important ≤3 / Nice-to-have ≤2); `Priority Reason` → one sentence; `Role summary` → ≤400 chars; each `Landscape` bullet → one line. When in doubt, cut.
+- **Hard caps:** `Role emphasis` → exactly the two labeled parts (**Emphasis**: 3–4 JTBD bullets; **Likely KPIs**: 3–5 bullets), blank line between them, ≤100 words total; `Culture` → 2–3 one-line bullets, blank-line-separated; `Keywords` → ≤9 total (Critical ≤4 / Important ≤3 / Nice-to-have ≤2); `Priority Reason` → one sentence; `Role summary` → ≤400 chars; each `Landscape` bullet → one line. When in doubt, cut.
 
 ---
 
-**Likely KPIs (always produced — a required part of the `Role emphasis` property).** State, as one line, the metric set this role is actually measured on — for **every** role, **including when the JD names no targets at all.** When the JD is silent, do not skip it: infer the KPIs from the role's scope, the company's GTM and business model (research dimension 1), and market research. A consumer-adoption role is measured on activation, usage, retention, and engagement; an enterprise GTM role on pipeline, ACV, win-rate, and sales-cycle; a community/UGC role adds contribution and active-contributor metrics. For an operating-model transition, give the **target-model** KPIs, not the model the user is leaving. Never leave it blank — and never tag it: confidence tags do not appear anywhere in `Role emphasis` (2026-07-23); an inferred KPI set is simply stated (research is hypothesis by nature).
+**Likely KPIs (always produced — a required part of the `Role emphasis` property).** State, as bullets (3–5, one per metric or tight group), the metric set this role is actually measured on — for **every** role, **including when the JD names no targets at all.** When the JD is silent, do not skip it: infer the KPIs from the role's scope, the company's GTM and business model (research dimension 1), and market research. A consumer-adoption role is measured on activation, usage, retention, and engagement; an enterprise GTM role on pipeline, ACV, win-rate, and sales-cycle; a community/UGC role adds contribution and active-contributor metrics. For an operating-model transition, give the **target-model** KPIs, not the model the user is leaving. Never leave it blank — and never tag it: confidence tags do not appear anywhere in `Role emphasis` (2026-07-23); an inferred KPI set is simply stated (research is hypothesis by nature).
 
 ---
 
@@ -231,12 +232,22 @@ If `GAP_HANDLING = disabled` (set in the Settings pre-flight), leave `Gap handli
 
 **Load `${CAREER_ENGINE_ROOT}/references/discipline-emphasis-signals.md` before writing this property** — it maps common disciplines to the signals that reveal what a JD actually weights, so the emphasis read is anchored instead of improvised.
 
-**Fixed structure — identical every run, exactly these TWO labeled lines, blank line between them, ≤100 words total (count before returning):**
+**Fixed structure — identical every run, exactly these TWO labeled parts, each a bullet list, blank line between them, ≤100 words total (count before returning). Bullets added 2026-10-20, per the user: the prior single run-on Emphasis sentence ("Make a widening monetization platform understandable and useful to developers and multiple business personas; own product-area positioning and launches, then convert awareness into sustained self-serve adoption...") was not clear enough — the fix is to align it specifically with the role's JTBD (jobs to be done) and format it as bullets:**
 ```
-**Emphasis:** a paraphrased and/or directly quoted summary of what's most important in the role — the JD's most-weighted themes, translated through the company's real operating model where a term is ambiguous.
+**Emphasis:**
+- <JTBD 1 — the single most important job this role exists to get done>
+- <JTBD 2>
+- <JTBD 3>
 
-**Likely KPIs:** one line — comma list, target-model set for a transition.
+**Likely KPIs:**
+- <KPI or KPI group 1>
+- <KPI or KPI group 2>
+- <KPI or KPI group 3>
 ```
+
+**Emphasis = the role's jobs to be done, ranked.** 3–4 bullets (never more), each ONE job phrased as outcome-led work — a verb plus the result the business hires this role to produce ("Turn a widening monetization platform into something developers and business personas each understand and adopt", "Own product-area positioning and launches through to self-serve adoption"). Order by importance: bullet 1 is the job the JD weights most heavily (title, first-listed responsibilities, repeated themes, the hiring manager's function — see `discipline-emphasis-signals.md`); a job the JD merely lists does not outrank one it stresses. Paraphrase or quote the JD's own vocabulary; one bullet = one job, never a stacked sentence of three. No bold, no sub-bullets, no tags.
+
+**Likely KPIs = bullets, one per metric or tight metric group** (3–5), most decision-relevant first. Each bullet names what is measured, not a task ("Self-serve activation and retention", "Pipeline sourced from launches"). Where a bullet's KPI belongs to a specific Emphasis job, keep them in matching order so a reader can pair them by position.
 
 **The operating-model translation lives INSIDE the Emphasis line, in generic discipline terms — it is role description, not candidate mapping.** The user's own kept example of what belongs: *"Xata is a product-led, developer-bought Postgres/AI-infrastructure tool → 'demand gen' here means organic developer growth (content, SEO/AI-search, community, launches)."* Name the motion in standard discipline vocabulary — PLG, B2D, ABM, enterprise sales-led, community-led — so any user's writers (which read that user's career-data) can map it to their own background. That naming is the ENTIRE bridge to the candidate: this property never mentions the user, her capabilities, or what "maps to" her — the writers do that mapping themselves.
 
@@ -266,6 +277,8 @@ Level: <the level the target role reads at, in plain words — e.g. "Senior IC, 
 One line per employer in her role record (`02-professional-background.md` and its `background-role-facts-*.md` files), every employer accounted for, in the record's own order. Nothing else — no commentary, no strategy, no summary advice (Hyper Focus).
 
 **The four dispositions:**
+**Matching mode (2026-10-19).** `queue.md`'s `MATCHING MODE` section carries `role_matching`. Under `titles` (the user chose rigid, official-titles-only), **Keep is the default and needs no reason**; Fold still applies (it is about space, not titles); Retitle and Descriptor are emitted only for an employer with a user-stated rule in `USER CV TITLE PREFERENCES`. Under `capabilities` (default, or section absent) the dispositions work as below.
+
 - **Retitle — the default.** Her role facts show the target function was real, substantial work in that role: a standing responsibility with documented outputs, not a one-off. The title becomes the target role's title or its nearest truthful variant.
 - **Descriptor.** Some documented work in the target function, but it was not the substance of the role — the usual career-shift case. The recorded title stays and the target function is appended in parentheses.
 - **Keep.** The recorded title already reads as the target function, or the user asked for it. Always carries a reason.
@@ -279,7 +292,7 @@ One line per employer in her role record (`02-professional-background.md` and it
 3. **Every `basis:` is a fact from her role record.** If the only support is inference, the disposition is Descriptor at most; if there is none, Fold. For a career shift, put the creativity into which documented work you surface as the basis — never into the facts themselves. When nothing supports more, fall back to what her career-data says.
 4. **Every employer appears on a line.** A missing employer is a hidden employer.
 
-**The user's own `CV Title Preferences` are authoritative.** When `queue.md` carries a `USER CV TITLE PREFERENCES` section for the role (her own per-role field), apply it as written — a title she states for an employer is that employer's line, marked `| basis: user-stated`, exempt from the limits above (it is her statement about her own title). Standing preferences in her career-data (`01-writing-rules.md`) apply the same way.
+**The user's standing title rules (`cv_title_rules` in `pipeline-preferences.json`) and the legacy per-role `CV Title Preferences` field are authoritative.** When `queue.md` carries a `USER CV TITLE PREFERENCES` section for the role (rules first, then the legacy field, labelled), apply it as written — a title she states for an employer is that employer's line, marked `| basis: user-stated`, exempt from the limits above (it is her statement about her own title). Standing preferences in her career-data (`01-writing-rules.md`) apply the same way.
 
 **Her own CV structure rules outrank the plan.** Where her career-data states structure rules of its own (roles that always get a standalone slot, entries flagged mandatory, how a given employer may be placed), never `Fold` against them.
 

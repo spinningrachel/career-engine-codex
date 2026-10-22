@@ -26,6 +26,10 @@ class UsageReportingTests(unittest.TestCase):
                 (source / 'scripts' / name).write_text('# synthetic fixture\n')
             needles = ['"log-token-usage.sh"', '\'"type": "prompt"\'', '"last_assistant_message"', "'ok", 'AskUserQuestion', 'gate-ask-user-question.sh']
             (source / 'scripts/qa-mechanical.sh').write_text('\n'.join('expect_ge "21t" "hooks/hooks.json" ' + n for n in needles))
+            (source / 'hooks').mkdir()
+            (source / 'hooks/hooks.json').write_text(json.dumps({'hooks': {'Stop': [{'hooks': [{'type': 'prompt', 'prompt': 'Synthetic queue-completion policy'}]}]}}))
+            (source / 'scripts/qa-parity.json').write_text(json.dumps({'defined_terms': []}))
+            (source / 'agents/role-prioritizer.md').write_text('Synthetic role fixture\n')
             post = source / 'skills/career-engine-orchestrator/orchestrator-post-run.md'
             post.parent.mkdir()
             post.write_text('Actual token counts are appended by a Stop hook configured during setup — the hook writes to this same file when the session ends.\n"token_counts": "pending — written by Stop hook at session end"\nSet each agent count from the actual invocations this run. Leave `token_counts` as the literal string `"pending — written by Stop hook at session end"` — the hook replaces this value when the session closes.\n## Final Chat Delivery\nFUTURE REQUIRED GATE\n')
@@ -72,5 +76,5 @@ class UsageReportingTests(unittest.TestCase):
         self.assertIn('on an interrupted run all three block', post)
         setup = (ROOT / 'plugin/skills/career-engine-setup/SKILL.md').read_text()
         self.assertNotIn('The hook ships with the plugin and **registers itself**', setup)
-        for path in ('codex/runtime.md', 'chatgpt/runtime.md', 'chatgpt/instructions.txt'):
+        for path in ('codex/runtime.md', 'chatgpt/runtime.md', 'chatgpt/instructions.txt', 'chatgpt/plugin-skill.md'):
             self.assertIn('references/run-metrics-host.md', (ROOT / path).read_text())

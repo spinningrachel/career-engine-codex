@@ -22,12 +22,15 @@ def detect():
         subprocess.run(['git','checkout','--detach','FETCH_HEAD'],cwd=upstream,check=True)
     new=git('rev-parse','HEAD',cwd=upstream)
     changed=new!=old
-    # Avoid re-running paid Codex review for the same pending update.
-    pending=subprocess.run(['git','fetch','--depth','1','origin','refs/heads/sync/upstream'],cwd=ROOT,capture_output=True,text=True)
+    # A branch alone is not delivery: publication may have failed after push.
+    # Skip paid review only for an actual open PR against this same main base.
+    pending=subprocess.run(['git','fetch','origin','refs/heads/sync/upstream'],cwd=ROOT,capture_output=True,text=True)
     if pending.returncode==0:
         pending_lock=json.loads(git('show','FETCH_HEAD:upstream-lock.json'))
-        if pending_lock['commit']==new:
+        based_on_main = subprocess.run(['git','merge-base','--is-ancestor','HEAD','FETCH_HEAD'],cwd=ROOT).returncode == 0
+        if pending_lock['commit']==new and based_on_main and pending_pr_matches(git('rev-parse','FETCH_HEAD'), git('rev-parse','HEAD')):
             changed=False
+            print('An open sync PR already contains this upstream version on the current base.')
     if changed:
         subprocess.run(['git','fetch','--depth','1','origin',old],cwd=upstream,check=True)
         (work/'upstream.diff').write_text(git('diff',old,new,'--',cwd=upstream)+'\n')
@@ -36,6 +39,14 @@ def detect():
         with open(os.environ['GITHUB_OUTPUT'],'a') as f:
             f.write(output)
     print(output,end='')
+
+def pending_pr_matches(head, base):
+    result = subprocess.run(['gh','pr','list','--repo','spinningrachel/career-engine-codex',
+                             '--head','sync/upstream','--base','main','--state','open',
+                             '--json','headRefOid,baseRefOid'], cwd=ROOT, capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError('Cannot determine whether sync has an open PR: ' + result.stderr)
+    return any(pr['headRefOid'] == head and pr['baseRefOid'] == base for pr in json.loads(result.stdout))
 
 if __name__=='__main__':
     detect()

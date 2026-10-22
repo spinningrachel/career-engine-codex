@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import shlex
 from pathlib import Path
 import shutil
 import subprocess
@@ -12,7 +13,10 @@ INCLUDE = ('agents', 'skills', 'references', 'scripts', 'assets')
 BOOT = '\n> **Codex host:** Before using this document, read `${CAREER_ENGINE_ROOT}/CODEX-RUNTIME.md`. Resolve the root from this skill’s installed path. That contract replaces Claude-specific APIs, installation, personal-data discovery, and role spawning; all career doctrine, gates, and required reads below still apply.\n'
 
 def translate(text):
-    return text.replace('${CLAUDE_PLUGIN_ROOT}', '${CAREER_ENGINE_ROOT}').replace('$CLAUDE_PLUGIN_ROOT', '$CAREER_ENGINE_ROOT')
+    text = text.replace('${CLAUDE_PLUGIN_ROOT}', '${CAREER_ENGINE_ROOT}').replace('$CLAUDE_PLUGIN_ROOT', '$CAREER_ENGINE_ROOT')
+    # Gate 2 must run from a relocated installation, regardless of shell cwd.
+    return text.replace('python3 skills/gatekeeper-checks/scripts/pregate-lint.py',
+                        'python3 "${CAREER_ENGINE_ROOT}/skills/gatekeeper-checks/scripts/pregate-lint.py"')
 
 def add_bootstrap(text):
     if text.startswith('---\n') and '\n---' in text[4:]:
@@ -43,6 +47,52 @@ def adapt_usage(target):
     end = text.index('Confirm: "Phase 6 complete.', start)
     setup.write_text(text[:start] + '**Run usage reporting:**\n\nRead references/run-metrics-host.md. The structural run report is required after applicable pipelines, including interrupted runs. Codex and ChatGPT do not run Claude’s Stop hook. Explain unavailable token counts and cost explicitly; never configure a Claude hook as a fallback on these hosts.\n\n' + text[end:])
 
+def adapt_cv_word_count(text):
+    # Preserve Gate 2's language-neutral token definition and comment exclusion.
+    # Fail closed if upstream changes these implementation sites on a later sync.
+    replacements = {
+        '    total, skipping = 0, False\n    for line in lines:':
+        '    total, skipping = 0, False\n'
+        '    lines = re.sub(r"<!--.*?-->", "", "\\n".join(lines), flags=re.DOTALL).splitlines()\n'
+        '    for line in lines:',
+        'if re.search(r"[A-Za-z0-9]", tok)':
+        'if any(char.isalnum() for char in tok)',
+    }
+    for original, replacement in replacements.items():
+        if text.count(original) != 1:
+            raise RuntimeError('Upstream CV word-count implementation changed; review required')
+        text = text.replace(original, replacement)
+    return text
+
+def preserve_stop_policy(source, target):
+    # Codex has no prompt Stop hook. Preserve its career policy as required
+    # runtime guidance instead of dropping it with the Claude hook API.
+    upstream_hooks = json.loads((source / 'hooks/hooks.json').read_text())
+    stop_prompts = [translate(h['prompt'])
+                    for group in upstream_hooks.get('hooks', {}).get('Stop', [])
+                    for h in group['hooks'] if h.get('type') == 'prompt']
+    if not stop_prompts:
+        raise RuntimeError('Upstream Stop policy missing; review required')
+    policy_path = 'references/upstream-stop-policy.md'
+    (target / policy_path).write_text(
+        '# Upstream queue-completion policy\n\n'
+        'Read and apply this policy through CODEX-RUNTIME.md. The quoted upstream '
+        'prompt is instruction-level guidance on Codex, not an installed Stop hook. '
+        'Claude tool names and response JSON describe the upstream host; continue '
+        'the authorized queue using available Codex tools and preserve genuine blockers.\n\n'
+        + '\n\n'.join(stop_prompts) + '\n')
+    # Keep relational assertions checking the actual preserved policy. Only
+    # references to the replaced hook file move; all terms and siblings remain.
+    parity_path = target / 'scripts/qa-parity.json'
+    parity = json.loads(parity_path.read_text())
+    for assertion in parity.get('defined_terms', []):
+        if 'hooks/hooks.json' in assertion['files']:
+            if assertion['term'].lower() not in '\n'.join(stop_prompts).lower():
+                raise RuntimeError('Unmapped upstream hook assertion: ' + assertion['id'])
+            assertion['files'] = [policy_path if f == 'hooks/hooks.json' else f
+                                  for f in assertion['files']]
+    parity_path.write_text(json.dumps(parity, indent=2) + '\n')
+
 def generate(source):
     source = source.resolve()
     commit = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
@@ -55,6 +105,8 @@ def generate(source):
     for p in target.rglob('*'):
         if p.is_file() and p.suffix in ('.md','.sh','.py','.json'):
             text = translate(p.read_text())
+            if p.relative_to(target).as_posix() == 'skills/gatekeeper-checks/scripts/pregate-lint.py':
+                text = adapt_cv_word_count(text)
             if p.name == 'SKILL.md' or (p.parent.name == 'agents' and p.suffix == '.md'):
                 text = add_bootstrap(text)
             if p.relative_to(target).as_posix() == 'agents/qa-plugin.md':
@@ -94,6 +146,7 @@ def generate(source):
     (target / 'hooks/hooks.json').write_text(json.dumps(hook,indent=2)+'\n')
     shutil.copy2(ROOT / 'codex/personal-data-hook.py', target / 'scripts/codex-personal-data-hook.py')
     shutil.copy2(ROOT / 'codex/question-gate.py', target / 'scripts/codex-question-gate.py')
+    preserve_stop_policy(source, target)
     # Keep all career-doctrine assertions. Replace six Claude hook API assertions
     # with their native equivalents; an upstream assertion change stops generation.
     qa=target/'scripts/qa-mechanical.sh'
@@ -111,7 +164,44 @@ def generate(source):
         if len(found)!=1:
             raise RuntimeError('Upstream host-hook assertion changed; review required: '+needle)
         lines[found[0]]=replacement
+    # New doctrine checks can cite the Stop prompt too. Preserve each check's
+    # pattern and count, pointing literal policy checks at the retained text.
+    policy = (target / 'references/upstream-stop-policy.md').read_text()
+    for i, line in enumerate(lines):
+        if line.startswith('expect_ge ') and '"hooks/hooks.json"' in line:
+            args = shlex.split(line)
+            if len(args) == 5 and args[3] in policy:
+                lines[i] = line.replace('"hooks/hooks.json"', '"references/upstream-stop-policy.md"', 1)
     qa.write_text('\n'.join(lines)+'\n')
+    # Claude duplicates versions in two manifests. Codex's marketplace format
+    # has no version field: validate the actual native cache key and provenance.
+    text = qa.read_text()
+    start = text.find('V_PLUGIN=$(python3 ')
+    if start >= 0:
+        end_marker = 'expect_ge "73" "scripts/check-invariants.sh"'
+        end = text.find(end_marker, start)
+        block = text[start:end]
+        if end < 0 or '.claude-plugin/plugin.json' not in block or '.claude-plugin/marketplace.json' not in block:
+            raise RuntimeError('Upstream version assertion changed; native mapping review required')
+        replacement = ('if python3 "$(dirname "$0")/check-native-version.py" "$TARGET"; then report "73" 1 "";\n'
+                       'else report "73" 0 "native cache version/provenance invalid"; fi\n')
+        qa.write_text(text[:start] + replacement + text[end:])
+    shutil.copy2(ROOT / 'codex/native-version.py', target / 'scripts/check-native-version.py')
+    # Resolve the reviewed upstream cleanup contradiction without allowing any
+    # write to an archived, trashed, or status-changed page. Match the exact
+    # conflicting clause so future upstream edits are not broadly rewritten.
+    role_path = target / 'agents/role-prioritizer.md'
+    role = role_path.read_text()
+    conflicting = "**First, release unfinished claims (2026-10-21):** set `Agent Status = No Status` on every role claimed in Step 1 that did not get its Step 3 write (skipped, failed, archived mid-run). Never touch a role this run did not claim."
+    resolved = "**First, release unfinished claims (2026-10-21):** for each role claimed in Step 1 that did not get its Step 3 write (skipped or failed), re-fetch the page immediately before cleanup. Set `Agent Status = No Status` only for this run's own unfinished claim when the page is live (not archived/trashed), its Status still matches the target from Step 0, and its Agent Status is still In Progress. If archived/trashed, Status-changed, inaccessible, or no longer this run's claim, make no write, never unarchive it, and report `claim not released — page archived/changed or ownership unverified` with the role in Step 4. Report cleanup failures too; never claim release succeeded without its result. The archival and liveness gates take precedence over cleanup. Never touch a role this run did not claim."
+    if conflicting in role:
+        role_path.write_text(role.replace(conflicting, resolved, 1))
+        shared = target / 'skills/database/SKILL.md'
+        shared_text = shared.read_text()
+        release_rule = "Never clear a claim another session wrote."
+        if shared_text.count(release_rule) != 1:
+            raise RuntimeError('Upstream shared claim release rule changed; review required')
+        shared.write_text(shared_text.replace(release_rule, release_rule + " **Cleanup safety:** wrap-up releases are still writes: re-fetch first, release only this run's own unfinished claim on a live page whose target Status is unchanged, and never write to or unarchive archived/trashed pages. When cleanup is unsafe, unavailable, or fails, leave the page untouched and name the unreleased claim and reason in the run report. Cleanup never overrides the adapter's liveness gate.", 1))
     overrides = ROOT / 'codex/overrides'
     if overrides.exists():
         for p in overrides.rglob('*'):

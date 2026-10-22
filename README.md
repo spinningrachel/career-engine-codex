@@ -1,5 +1,14 @@
 # Career Engine for Codex and ChatGPT
 
+## Install in ChatGPT Plugins
+
+Download [career-engine-chatgpt-plugin.zip](https://github.com/spinningrachel/career-engine-codex/raw/refs/heads/main/career-engine-chatgpt-plugin.zip) for the ChatGPT Plugins upload flow. This is the portable plugin archive, with root `plugin.json`, a discoverable Career Engine skill, and supporting doctrine/runtime/templates. Upload this ZIP as a plugin; it requires no Custom GPT creation or GPT-to-plugin migration. The other archives below serve Codex CLI and the older manual GPT/Project setup routes.
+
+For an existing migrated Career Engine plugin, use its update workflow to preserve identity, sharing, and any existing connections. This repository artifact does not automatically update your installed plugin; do not create a duplicate as an update. Account update eligibility and live installation must be verified in ChatGPT. No MCP server, connector authentication, or native hooks are added by this skills package. Keep private career-data separate.
+
+Upstream pushes notify this repository through `career-engine-updated`; hourly polling remains the fallback. Changed source passes the existing isolated review, final validation, reusable checkpoint, and publish process. All three packages are rebuilt and published together. Failed plugin checks block delivery; GitHub checks validate packaging and exports, not live ChatGPT execution.
+
+
 Career Engine's career doctrine, reference templates, roles, and review gates come from [Career Engine for Claude](https://github.com/spinningrachel/career-engine-claude), pinned in `upstream-lock.json`. This parallel repository adapts that source for Codex and for **both ChatGPT Custom GPTs and Projects**. All three installation paths are maintained on every update.
 
 **Personal career data never belongs in either public repository or package.** First-time users install and configure their own external **career-data** skill separately. Packages contain instructions, code, blank templates, and fictional test fixtures. Updating an installation replaces shared materials and preserves the user's private career-data and outputs.
@@ -103,3 +112,7 @@ Offline validation covers actual native CLI installation, package/source integri
 MIT license; upstream authorship is retained.
 
 Run usage reporting preserves the upstream `run-metrics-YYYY-MM-DD.json` output, including interrupted runs. Reports distinguish sequential role passes from spawned agent invocations. Codex and ChatGPT use verified run-scoped measurements only; unavailable tokens and cost carry explicit reasons. Delivery verifies and links the report or reports the failure. The durable adaptation lives in `tools/port.py` and `codex/overrides/references/run-metrics-host.md`; regeneration retains it. Reports and ledgers stay in private external output storage, separate from public packages and career-data.
+
+### Check the version from chat
+
+Ask **Career Engine version** or **was Career Engine updated?** The new plugin includes a dedicated version skill and an embedded build stamp in its main skill. It reports the loaded package build and imported source first, then checks [the latest published version record](https://raw.githubusercontent.com/spinningrachel/career-engine-codex/main/chatgpt-plugin-version.json) when fetching is available. Matching builds mean current; different builds are reported separately, without sorting SemVer build metadata. If the remote check or old installation's stamp is unavailable, it reports unknown. Publishing a ZIP does not update an installed plugin or an existing chat. The account's internal release version may differ from the embedded package build.

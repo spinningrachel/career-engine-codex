@@ -13,6 +13,40 @@ ROOT=Path(__file__).resolve().parents[1]
 PLUGIN=ROOT/'plugin'
 
 class PortTests(unittest.TestCase):
+    def test_stop_policy_retains_and_enforces_upstream_parity(self):
+        spec=importlib.util.spec_from_file_location('port',ROOT/'tools/port.py')
+        port=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(port)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'source/hooks').mkdir(parents=True)
+            target=root/'target'
+            (target/'references').mkdir(parents=True)
+            (target/'scripts').mkdir()
+            (target/'agents').mkdir()
+            term='Prioritization outcome table'
+            (root/'source/hooks/hooks.json').write_text(json.dumps({'hooks':{'Stop':[{'hooks':[{'type':'prompt','prompt':'Apply the '+term+' for every fetch outcome.'}]}]}}))
+            manifest={'defined_terms':[{'id':'prioritization','term':term,'files':['agents/role-prioritizer.md','hooks/hooks.json']}]}
+            (target/'scripts/qa-parity.json').write_text(json.dumps(manifest))
+            (target/'agents/role-prioritizer.md').write_text(term)
+            shutil.copy2(PLUGIN/'scripts/qa-parity.py',target/'scripts/qa-parity.py')
+            port.preserve_stop_policy(root/'source',target)
+            command=['python3',str(target/'scripts/qa-parity.py'),str(target)]
+            self.assertEqual(subprocess.run(command,capture_output=True).returncode,0)
+            mapped=json.loads((target/'scripts/qa-parity.json').read_text())
+            self.assertEqual(mapped['defined_terms'][0]['files'],['agents/role-prioritizer.md','references/upstream-stop-policy.md'])
+            # Losing either consumer must still fail the original parity gate.
+            for name in mapped['defined_terms'][0]['files']:
+                path=target/name
+                original=path.read_text()
+                path.write_text('Missing policy')
+                self.assertEqual(subprocess.run(command,capture_output=True).returncode,1)
+                path.write_text(original)
+            (target/'scripts/qa-parity.json').write_text(json.dumps(manifest))
+            (root/'source/hooks/hooks.json').write_text(json.dumps({'hooks':{'Stop':[{'hooks':[{'type':'prompt','prompt':'Unrelated policy'}]}]}}))
+            with self.assertRaisesRegex(RuntimeError,'Unmapped upstream hook assertion'):
+                port.preserve_stop_policy(root/'source',target)
+
     def test_generated_provenance(self):
         lock=json.loads((ROOT/'upstream-lock.json').read_text())
         self.assertRegex(lock['commit'],r'^[0-9a-f]{40}$')
