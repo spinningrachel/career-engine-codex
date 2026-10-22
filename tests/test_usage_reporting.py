@@ -30,6 +30,12 @@ class UsageReportingTests(unittest.TestCase):
             (source / 'hooks/hooks.json').write_text(json.dumps({'hooks': {'Stop': [{'hooks': [{'type': 'prompt', 'prompt': 'Synthetic queue-completion policy'}]}]}}))
             (source / 'scripts/qa-parity.json').write_text(json.dumps({'defined_terms': []}))
             (source / 'agents/role-prioritizer.md').write_text('Synthetic role fixture\n')
+            intake = source / 'skills/career-engine-intake/SKILL.md'
+            intake.parent.mkdir()
+            intake.write_text("**Confirmation pass — run immediately after this role's writes, before moving to the next role (this closes the past silent-drop; see the per-role sequencing rule above).**\nFUTURE CONFIRMATION GATE\n")
+            database = source / 'skills/database/SKILL.md'
+            database.parent.mkdir()
+            database.write_text('**Pipeline reads:**\nFUTURE DATABASE GATE\n')
             post = source / 'skills/career-engine-orchestrator/orchestrator-post-run.md'
             post.parent.mkdir()
             post.write_text('Actual token counts are appended by a Stop hook configured during setup — the hook writes to this same file when the session ends.\n"token_counts": "pending — written by Stop hook at session end"\nSet each agent count from the actual invocations this run. Leave `token_counts` as the literal string `"pending — written by Stop hook at session end"` — the hook replaces this value when the session closes.\n## Final Chat Delivery\nFUTURE REQUIRED GATE\n')
@@ -53,6 +59,8 @@ class UsageReportingTests(unittest.TestCase):
                 port.generate(source)
                 self.assertEqual(first, (root / 'upstream-lock.json').read_bytes())
                 self.assertIn('FUTURE REQUIRED GATE', (root / 'plugin' / post.relative_to(source)).read_text())
+                self.assertIn('FUTURE CONFIRMATION GATE', (root / 'plugin' / intake.relative_to(source)).read_text())
+                self.assertIn('FUTURE DATABASE GATE', (root / 'plugin' / database.relative_to(source)).read_text())
                 self.assertEqual((ROOT / 'codex/overrides/references/run-metrics-host.md').read_bytes(), (root / 'plugin/references/run-metrics-host.md').read_bytes())
                 post.write_text(post.read_text().replace('## Final Chat Delivery', '## Changed delivery'))
                 with self.assertRaisesRegex(RuntimeError, 'anchor changed'):
