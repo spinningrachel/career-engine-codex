@@ -43,3 +43,7 @@ Read UPDATE-CONTRACT.md on every update. Regeneration and packaging ship matchin
 ## Installation and refresh
 
 For a new Codex CLI installation, install Node.js, run `npm install -g @openai/codex@latest`, then `codex login`. Register `codex plugin marketplace add spinningrachel/career-engine-codex --ref main`, install `codex plugin add career-engine@cheyfitz-codex`, and start a new `codex` session. Ask `$career-engine-setup` to configure external career-data. After updates, run `codex plugin marketplace upgrade cheyfitz-codex`, reinstall with the same plugin-add command, and start a new session. See the repository README for the supported host version, prerequisites, and both ChatGPT installation alternatives; their extracted kit includes START-HERE.md and both instruction variants. Every update reviews these steps under UPDATE-CONTRACT.md.
+
+## Run usage reports
+
+Read references/run-metrics-host.md for every applicable pipeline and interrupted-run delivery. Verify and link the structural report. Token counts and cost require verified run evidence; otherwise record unavailable with reasons. Claude's Stop hook is not a Codex accounting fallback.

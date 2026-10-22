@@ -111,6 +111,8 @@ Offline validation covers actual native CLI installation, package/source integri
 
 MIT license; upstream authorship is retained.
 
+Run usage reporting preserves the upstream `run-metrics-YYYY-MM-DD.json` output, including interrupted runs. Reports distinguish sequential role passes from spawned agent invocations. Codex and ChatGPT use verified run-scoped measurements only; unavailable tokens and cost carry explicit reasons. Delivery verifies and links the report or reports the failure. The durable adaptation lives in `tools/port.py` and `codex/overrides/references/run-metrics-host.md`; regeneration retains it. Reports and ledgers stay in private external output storage, separate from public packages and career-data.
+
 ### Check the version from chat
 
 Ask **Career Engine version** or **was Career Engine updated?** The new plugin includes a dedicated version skill and an embedded build stamp in its main skill. It reports the loaded package build and imported source first, then checks [the latest published version record](https://raw.githubusercontent.com/spinningrachel/career-engine-codex/main/chatgpt-plugin-version.json) when fetching is available. Matching builds mean current; different builds are reported separately, without sorting SemVer build metadata. If the remote check or old installation's stamp is unavailable, it reports unknown. Publishing a ZIP does not update an installed plugin or an existing chat. The account's internal release version may differ from the embedded package build.

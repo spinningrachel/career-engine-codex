@@ -24,3 +24,7 @@ Outputs are private sandbox downloads unless an actual authorized storage tool s
 ## Continuity, updates, and evidence
 
 Do not assume persistent memory or access to prior chats. Offer private resume bundles and ledgers. Read UPDATE-CONTRACT.md for updates, applying this plugin host mapping to its historical installation routes. Preserve all source sections and compare provenance.json with the reviewed upstream lock. Source/code changes must rebuild and validate this plugin alongside the existing distributions. This plugin needs no Custom GPT creation or GPT-to-plugin migration. Its archive is an install/update artifact; GitHub publication does not automatically update an installed account plugin. Record offline package/export checks separately from live plugin installation, skill retrieval, connected requests, and host hook execution. Never mark unrun checks passed.
+
+## Run usage reports
+
+Retrieve `references/run-metrics-host.md` through the source index before applicable pipelines. Preserve required reports on interrupted runs, count sequential role passes separately from spawned invocations, and use actual run evidence. Tokens and cost remain explicitly unavailable with reasons unless verified run-scoped measurements exist. Never promise Claude Stop-hook accounting. Verify the generated JSON artifact and provide its actual sandbox download link; retry failures once and apply the documented clean/interrupted failure handling.
