@@ -64,6 +64,25 @@ def adapt_cv_word_count(text):
         text = text.replace(original, replacement)
     return text
 
+def adapt_intake_corrections(target):
+    """Resolve legacy consumer wording against the explicit October 22 rules."""
+    edits = {
+        'skills/career-engine-intake/SKILL.md': (
+            '**Confirmation pass — run immediately after this role\'s writes, before moving to the next role (this closes the past silent-drop; see the per-role sequencing rule above).**',
+            ' **Schema eligibility applies to confirmation too:** exclude coach fields skipped under the no-matching-text-property rule from confirmation, retry, and unwritten-field reporting. Still require their coach output and the outreach-map details; all eligible mandatory properties retain the comparison, retry, and reporting gates below.'),
+        'skills/database/SKILL.md': (
+            '**Pipeline reads:**',
+            '**Closure precedence:** the October 22 ATS rule governs every pipeline, including older fetch-ladder, prioritizer, and Edit summaries. A confirmed official ATS 404/410 or board-root redirect remains closed even if a mirror serves a copy; a mirror cannot reopen the official posting. A rendering failure without those verified responses remains a fetch problem and must be retried. In `Closed this run`, record the actual evidence observed (ATS response/redirect alone suffices under rule (c)); never claim an index check occurred if it did not. Include roles with no matching Closed option in this dedicated block as `NOT WRITTEN`, with prior Status, URL, and evidence, even when an older summary also lists them as skipped.\n\n'),
+    }
+    for relative, (anchor, addition) in edits.items():
+        path = target / relative
+        text = path.read_text()
+        if text.count(anchor) != 1:
+            raise RuntimeError('Intake correction anchor changed; review required: ' + relative)
+        replacement = addition + anchor if relative == 'skills/database/SKILL.md' else anchor + addition
+        text = text.replace(anchor, replacement, 1)
+        path.write_text(text)
+
 def preserve_stop_policy(source, target):
     # Codex has no prompt Stop hook. Preserve its career policy as required
     # runtime guidance instead of dropping it with the Claude hook API.
@@ -212,6 +231,7 @@ def generate(source):
                 out.parent.mkdir(parents=True,exist_ok=True)
                 shutil.copy2(p,out)
     adapt_usage(target)
+    adapt_intake_corrections(target)
     hashes = {str(p.relative_to(target)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(target.rglob('*')) if p.is_file()}
     (ROOT / 'upstream-lock.json').write_text(json.dumps({'repository':'spinningrachel/career-engine-claude','commit':commit,'generated_sha256':hashes},indent=2)+'\n')
     print('Ported',commit,'to',target,':',len(hashes),'files')
