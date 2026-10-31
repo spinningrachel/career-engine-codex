@@ -35,6 +35,37 @@ def run(*args,**kwargs):
             print(result.stderr, end='', file=sys.stderr)
         return result
 
+
+def wait_for_validation(head, timeout=1200):
+    """Require the PR validation workflow and its validate job on this exact head."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        runs = json.loads(run(
+            'gh', 'run', 'list', '--workflow', 'validate.yml',
+            '--branch', 'sync/upstream', '--commit', head, '--event', 'pull_request',
+            '--limit', '20', '--json', 'databaseId,status,conclusion,headSha',
+            capture_output=True).stdout)
+        matching = [item for item in runs if item['headSha'] == head]
+        if matching:
+            latest = max(matching, key=lambda item: item['databaseId'])
+            if latest['status'] == 'completed':
+                if latest['conclusion'] != 'success':
+                    raise SystemExit('PR validation did not pass; leaving the PR open. '
+                                     'Inspect the run and approve workflows if required.')
+                details = json.loads(run(
+                    'gh', 'run', 'view', str(latest['databaseId']),
+                    '--json', 'jobs', capture_output=True).stdout)
+                jobs = [job for job in details['jobs'] if job['name'] == 'validate']
+                if len(jobs) != 1 or jobs[0]['conclusion'] != 'success':
+                    raise SystemExit('Validation job did not succeed; leaving the PR open.')
+                return
+            if latest['status'] in ('waiting', 'action_required'):
+                raise SystemExit('PR validation requires approval; leaving the PR open. '
+                                 'Approve workflows in GitHub, then rerun the sync.')
+        time.sleep(10)
+    raise SystemExit('Timed out waiting for PR validation; leaving the PR open. '
+                     'Check GitHub for a pending workflow approval.')
+
 def main():
     result=json.loads((ROOT/'.sync-work/review-result.json').read_text())
     if result['status']!='passed' or result['unresolved']:
@@ -69,6 +100,12 @@ def main():
         if run('git','ls-remote','origin','refs/heads/main',capture_output=True).stdout.split()[0]!=base:
             raise SystemExit('main changed; leaving the PR open for fresh validation')
         head=run('git','rev-parse','HEAD',capture_output=True).stdout.strip()
+        wait_for_validation(head)
+        if run('git','ls-remote','origin','refs/heads/main',capture_output=True).stdout.split()[0]!=base:
+            raise SystemExit('main changed during PR validation; leaving the PR open')
+        current=json.loads(run('gh','pr','view',str(number),'--json','headRefOid,state',capture_output=True).stdout)
+        if current['state']!='OPEN' or current['headRefOid']!=head:
+            raise SystemExit('PR changed during validation; refusing to merge')
         # GitHub enforces branch protections; never use --admin or bypass checks.
         run('gh','pr','merge',str(number),'--squash','--match-head-commit',head)
 

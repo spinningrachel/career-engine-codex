@@ -137,8 +137,9 @@ jobs:
     needs: review
     if: needs.review.outputs.changed == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 40
     permissions:
+      actions: read
       contents: write
       pull-requests: write
     steps:
