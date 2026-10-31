@@ -80,7 +80,7 @@ python3 -m pip install -r requirements.txt
 bash tools/validate.sh
 ```
 
-Install pandoc through the operating system's package manager. QA covers native compatibility, ChatGPT source coverage and instruction budgets, reproducible archives, portable and upstream DOCX exports, 45 personal-data guard cases, 11 question-gate cases, 512 mechanical checks, 26 relational checks, and repository/archive scans including Office XML. Six Claude hook-format assertions are translated to Codex equivalents; the career-doctrine checks remain intact. Run `python3 tools/check-codex-compatibility.py --install` for actual CLI installation in an isolated test configuration.
+Install pandoc through the operating system's package manager. QA covers native compatibility, ChatGPT source coverage and instruction budgets, reproducible archives, portable and upstream DOCX exports, 46 personal-data guard cases, 21 question-gate cases, 606 mechanical checks, 34 relational checks, and repository/archive scans including Office XML. Six Claude hook-format assertions are translated to Codex equivalents; the career-doctrine checks remain intact. Run `python3 tools/check-codex-compatibility.py --install` for actual CLI installation in an isolated test configuration.
 
 Every update follows [codex/update-contract.md](codex/update-contract.md), included as **UPDATE-CONTRACT.md in both packages** and read by the QA role and automated Codex review. Review Codex and ChatGPT compatibility separately from upstream semantic parity. Maintain this README and the packaged installation guide for all three paths. Rebuild **both** root ZIPs with `python3 tools/build.py`; validation rejects stale archives rather than silently replacing them.
 

@@ -24,6 +24,20 @@ class UsageReportingTests(unittest.TestCase):
                 (source / name).write_text('Synthetic fixture\n')
             for name in ('block-personal-data-writes.sh', 'test-personal-data-guard.sh'):
                 (source / 'scripts' / name).write_text('# synthetic fixture\n')
+            # The guard adapter now checks its traversal anchor. Model that
+            # upstream structure rather than bypassing the generation gate.
+            (source / 'scripts/block-personal-data-writes.sh').write_text(
+                'def in_plugin_repo(p):\n'
+                '    cur = os.path.dirname(os.path.abspath(p))\n'
+                '    while True:\n'
+                '        manifest = os.path.join(cur, ".claude-plugin", "plugin.json")\n'
+                '        if os.path.isfile(manifest):\n'
+                '            with open(manifest) as fh:\n'
+                '                return cur if json.load(fh).get("name") == "career-engine" else None\n'
+                '        parent = os.path.dirname(cur)\n'
+                '        if parent == cur:\n'
+                '            return None\n'
+                '        cur = parent\n')
             needles = ['"log-token-usage.sh"', '\'"type": "prompt"\'', '"last_assistant_message"', "'ok", 'AskUserQuestion', 'gate-ask-user-question.sh']
             (source / 'scripts/qa-mechanical.sh').write_text('\n'.join('expect_ge "21t" "hooks/hooks.json" ' + n for n in needles))
             (source / 'hooks').mkdir()

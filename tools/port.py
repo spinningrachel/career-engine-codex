@@ -134,7 +134,30 @@ def generate(source):
     # Native plugin recognition by the retained guard.
     guard = target / 'scripts/block-personal-data-writes.sh'
     guard.write_text(guard.read_text().replace('".claude-plugin"', '".codex-plugin"'))
-    guard.write_text(guard.read_text().replace('if os.path.isfile(os.path.join(cur, ".codex-plugin", "plugin.json")):', 'if os.path.isfile(os.path.join(cur, ".codex-plugin", "plugin.json")) or os.path.isfile(os.path.join(cur, ".agents", "plugins", "marketplace.json")):'))
+    # The source checkout is a marketplace, while installed bundles have a
+    # native plugin manifest. Preserve both boundaries without treating an
+    # unrelated marketplace as Career Engine. Keep the upstream plugin-name
+    # check and nearest-manifest boundary intact.
+    anchor = '        parent = os.path.dirname(cur)\n'
+    guard_text = guard.read_text()
+    if guard_text.count(anchor) != 1:
+        raise RuntimeError('Upstream guard root traversal changed; review required')
+    marketplace_check = '''        marketplace = os.path.join(cur, ".agents", "plugins", "marketplace.json")
+        if os.path.isfile(marketplace):
+            try:
+                with open(marketplace, encoding="utf-8") as fh:
+                    catalog = json.load(fh)
+                if catalog.get("name") == "cheyfitz-codex" and any(
+                    entry.get("name") == "career-engine"
+                    and entry.get("source") == {"source": "local", "path": "./plugin"}
+                    for entry in catalog.get("plugins", [])
+                ):
+                    return cur
+            except Exception:
+                pass
+            return None
+'''
+    guard.write_text(guard_text.replace(anchor, marketplace_check + anchor, 1))
     # QA test fixtures exercise the same native plugin-recognition path.
     tests = target / 'scripts/test-personal-data-guard.sh'
     tests.write_text(tests.read_text().replace('.claude-plugin', '.codex-plugin'))
