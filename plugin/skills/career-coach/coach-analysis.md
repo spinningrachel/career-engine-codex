@@ -403,15 +403,15 @@ If the specific AI category (e.g., conversational AI, NLP, voice agents) is not 
 1. **Read the JD text.** Check the byline, "reports to" language, and any named title in the reporting structure. If the JD names a reporting title (e.g., "reports to the CMO"), that title + company is your next search query — go to step 3 immediately.
 2. **Read the company About Us / Team page.** This is mandatory — not optional. Open the page and read it. Note any {{USER_PROFESSION}} function leaders by name and title.
 3. **Google `"[title]" [company name]`** — e.g., `"CMO" Northwind` or `"VP Marketing" Acme Corp`. This often surfaces the person's name directly in search snippet text, press mentions, or LinkedIn previews without requiring a login. Read the first page of results.
-4. **Search LinkedIn for the company** and scan **all** people with {{USER_PROFESSION}} titles — not just the most senior one. Map the org layer by layer using {{USER_FUNCTION_SENIORITY_HIERARCHY}} as the reference for title tiers. The most senior {{USER_PROFESSION}} leader is often NOT the hiring manager.
+4. **Search company Team/About pages, public bios, and conference/interview sources** and scan **all** people with {{USER_PROFESSION}} titles — not just the most senior one. LinkedIn search-result snippets are hints only; never open LinkedIn pages. Record evidence sources actually checked, flag incomplete coverage, and never invent team members. Map the org layer by layer using {{USER_FUNCTION_SENIORITY_HIERARCHY}} as the reference for title tiers. The most senior {{USER_PROFESSION}} leader is often NOT the hiring manager.
 5. **Check B2B intelligence platforms.** Search theorg.com, Crunchbase, and ZoomInfo for the company. A Google search for `[company name] theorg` or `[company name] site:theorg.com` is a fast entry point.
 6. **Apply org-layer logic.** If both a top-tier and a mid-tier {{USER_PROFESSION}} leader are visible, the mid-tier leader is the likely hiring manager for any role below the top tier. Do not default to the most senior title.
-7. **If a name is found, check their digital footprint.** Review their LinkedIn posts, company blog articles, X/Twitter if public, and any published interviews — this surfaces culture signals, priorities, and framing that feeds `Role emphasis`.
+7. **If a name is found, check their digital footprint.** Review company blog articles, public X/Twitter posts, and published interviews; LinkedIn search snippets are hints only, never open the page — this surfaces culture signals, priorities, and framing that feeds `Role emphasis`.
 8. Flag explicitly in `Patterns` if there is a layer between the most senior {{USER_PROFESSION}} leader and this role.
 
 **`Person who Advertised Role (if not Hiring Manager)`** — Name + title | Same as hiring manager | Not identifiable. [HIGH/LOW]
 
-**How to identify:** Check the JD posting on the source job board for a poster name or recruiter byline. Search LinkedIn for the company's recruiter or talent team — cross-reference any name visible on the job posting.
+**How to identify:** Check the JD posting on the source job board for a poster name or recruiter byline. Search company Team/About pages, public bios, and search-result snippets for the company's recruiter or talent team — cross-reference any name visible on the job posting; never open LinkedIn pages.
 
 **`Hiring manager's role`** — Title + 1 sentence on what their org position implies for the user's seniority and accountability. Hypothesis flag if not confirmed. [HIGH/LOW]
 

@@ -6,6 +6,8 @@ Load this file first for every coach invocation that requires role research (Opt
 
 ## Research Phase
 
+**October 31 source policy (applies to every dimension, deep-scan, and self-check below):** per the upstream user’s “Yes, plan the removal,” never open or automatically fetch LinkedIn pages, including redirects. Historical LinkedIn examples below describe evidence types, not permission to access that host. Use search-result snippets only as hints; verify facts on company Team/About/Careers pages, public biographies, interviews, conference talks, and non-LinkedIn job boards. Preserve every required research dimension, location cross-version check, org-depth sweep, and confidence check. For LinkedIn People/location/headcount/tenure/hiring-history examples, seek the same evidence on those public sources; record unknown when unavailable and never invent counts or reachability. Org depth scans all relevant function titles on company/team pages and public bios, naming the sources actually checked in the confidence block; do not claim a LinkedIn scan. Degree, mutual connections, and LinkedIn reachability remain unverified; they cannot be prerequisites for choosing contacts. Outreach actions are “Find on LinkedIn and connect” for the user to perform manually, every row [LOW].
+
 **Research standard:** Research comprehensively — the output is distilled but the research itself must be thorough. The bar: if a competent human recruiter spending 20 minutes on LinkedIn and Google could have found it, you should find it. Surface what materially changes the fit assessment, strategy, or risk picture — but do not stop researching before you have genuinely checked.
 
 **⛔ Effort floor — a negative answer is a claim of exhaustion, not of first failure (2026-07-23, from a real pattern the user confirmed: "almost every single time, I find the information that it couldn't, and it doesn't prove to take much time either").** The recurring lazy negatives: team existence unchecked, hiring manager "no idea," `First Advertised` unknown, JD "unfetchable." Each of these values has a defined ladder in this file or `coach-analysis.md`; you may return the negative ONLY after every rung of that ladder actually ran. `Unfetchable` in particular: the same role routinely appears on multiple boards — the mirror search rungs (careers page, board mirrors, exact-title search) must each run before that word is permitted. The internal record of what you tried belongs in the Research confidence check block only.
@@ -55,7 +57,7 @@ Draw ONLY from `02-professional-background.md` (Role Facts) and `03-framework.md
 **7. Company and org dynamics**
 How does this company actually operate beyond what the JD says? Research in this order — all four sources are mandatory, not a pick-one list:
 1. **Company Careers and About Us pages** — team structure, stated values, leadership listed by name. Read the actual page, not a summary.
-2. **LinkedIn company profile** — `get_company_profile(company_name, sections="posts,jobs")` if the MCP is connected. Founder/leadership tone, recent posts, what they actually promote vs. what they claim.
+2. **Company announcements and leadership voice** — WebSearch the company blog, press releases, founder/leadership interviews and conference talks (LinkedIn pages are never opened — scraping is barred by LinkedIn's User Agreement; removed 2026-10-31). Leadership tone, recent announcements, what they actually promote vs. what they claim.
 3. **Glassdoor** — WebSearch `site:glassdoor.com "<company name>" reviews`. Read actual review excerpts: management style, work-life balance signals, burn-out flags, what employees say they value vs. what leadership says.
 4. **Reddit** — WebSearch `site:reddit.com "<company name>" culture OR "working at" OR "interview"`. Candid employee and candidate observations not filtered through corporate comms.
 
@@ -71,22 +73,15 @@ Where does this company actually operate? Offices and HQ (company site footer, A
 
 **10. Hiring manager and team research**
 
-The LinkedIn MCP is the strongest tool for this step, but its absence is **not** a reason to skip — it is a reason to fall back. Never emit a bare "HM research skipped." Use the connected path when available; otherwise run the web-OSINT fallback and tag confidence down.
+LinkedIn is never scraped (no `linkedin-mcp`, no fetching linkedin.com pages — removed 2026-10-31, per the user: "Yes, plan the removal"; LinkedIn User Agreement §8.2.2/§8.2.13). Build the snapshot from web OSINT. Never emit a bare "HM research skipped."
 
-**If the LinkedIn MCP is connected:**
+**Web-OSINT path (the only path — run it; do not skip):**
 
-1. Identify the hiring manager: check the JD for a named contact, the company's LinkedIn Jobs page via `get_company_profile(company_name, sections="jobs")`, or the company About/Team page.
-2. If a hiring manager is found, run `get_person_profile(linkedin_username, sections="experience,education,posts")`. Extract: current title, tenure at this company, background before this company, any recent posts about hiring priorities or team direction.
-3. Run `get_company_employees(company_name, keywords="[relevant function keyword for the role]")`. Skim demographics — team size, seniority distribution, recent hires.
-4. Produce a 3–5 line Hiring Manager and Team snapshot. Include: HM background relevance, tenure signal (new HM = flux; long-tenure = established culture), any public statements about what they value, team composition signal.
+1. Identify the hiring manager with the non-LinkedIn ladder already specified under the `Hiring Manager's Name` property: JD reporting language → company About/Team page → Google `"[title]" [company]` → B2B intelligence platforms (theorg.com, Crunchbase, ZoomInfo public pages). A LinkedIn preview that surfaces in a search-result snippet counts as a hint; never open the LinkedIn page itself.
+2. For any named HM found, read what is publicly reachable without login: their company-blog posts, conference bios, published interviews. Extract: background relevance, tenure, stated priorities.
+3. For team composition, use the company Team/About page and Google. Note whatever is visible; do not assert headcount you cannot see.
+4. Produce a 3–5 line Hiring Manager and Team snapshot, tagging every inferred element `[LOW]` and naming the source inline. Note explicitly: "HM/team snapshot built from web OSINT; reachability unverified." Include: HM background relevance, tenure signal (new HM = flux; long-tenure = established culture), any public statements about what they value, team composition signal.
 5. This snapshot feeds directly into `Role emphasis` and the Letter Outline, and informs the `Strategy` letter-type selection.
-
-**If the LinkedIn MCP is not connected — web-OSINT fallback (run it; do not skip):**
-
-1. Identify the hiring manager with the non-LinkedIn ladder already specified under the `Hiring Manager's Name` property: JD reporting language → company About/Team page → Google `"[title]" [company]` → B2B intelligence platforms (theorg.com, Crunchbase, ZoomInfo public pages). Public LinkedIn profile previews surfaced by Google count here even without the MCP.
-2. For any named HM found, read what is publicly reachable without login: their company-blog posts, conference bios, published interviews, an indexed LinkedIn preview. Extract the same signals the MCP path would (background relevance, tenure, stated priorities).
-3. For team composition, use the company Team/About page and Google rather than `get_company_employees`. Note whatever is visible; do not assert headcount you cannot see.
-4. Produce the same 3–5 line snapshot, but tag every inferred element `[LOW]` and name the source inline. Note explicitly: "LinkedIn MCP not connected — HM/team snapshot built from web OSINT; reachability unverified."
 
 Either path produces a snapshot. The only acceptable empty result is "no named HM identifiable after the full ladder" — and that is a finding to flag in `Patterns`, not a skipped step.
 
@@ -98,19 +93,19 @@ What do customers and users actually say about this product? Check G2, Capterra,
 
 Goal: identify the 2–3 people most worth contacting at this company, decide what action to take for each, and produce a structured decision map the user can act on immediately. Do not produce a raw list of names — produce a decision.
 
-**The LinkedIn MCP is the best tool here, but its absence is not a reason to skip.** A bare "outreach map skipped" is the failure mode this step exists to prevent. When the MCP is connected, run the full priority ladder and research steps below. When it is **not** connected, run the web-OSINT fallback: identify the HM via the non-LinkedIn ladder (dimension 10 fallback), find one plausible internal advocate from the company Team/About page or a Google search for the adjacent function, and produce the same decision map — but set the action to "Find on LinkedIn and connect" (reachability and degree-of-connection cannot be verified without the MCP), tag every row `[LOW]`, and add the line "LinkedIn MCP not connected — contacts identified via web OSINT; verify reachability before outreach." Only skip the outreach map when the role is a triage exit (Priority 5–6) or was flagged `ROLE MAY BE CLOSED` — never skip it solely because the MCP is absent.
+**LinkedIn is never scraped (removed 2026-10-31), so the map is built from web OSINT.** A bare "outreach map skipped" is the failure mode this step exists to prevent: identify the HM via the non-LinkedIn ladder (dimension 10), find one plausible internal advocate from the company Team/About page or a Google search for the adjacent function, and produce the decision map with the action "Find on LinkedIn and connect" (a step the user does by hand; reachability and degree-of-connection cannot be verified), every row tagged `[LOW]`, and the line "Contacts identified via web OSINT; verify reachability before outreach." Only skip the outreach map when the role is a triage exit (Priority 5–6) or was flagged `ROLE MAY BE CLOSED`.
 
 **Priority ladder (work top to bottom; stop when you have 1 confirmed HM candidate + 1 internal advocate):**
 
-1. **Hiring Manager candidate** — already identified in dimension 10. Confirm they are reachable on LinkedIn (public profile, accepts connections). Action: Connect + short note.
-2. **One internal advocate** — someone in a role adjacent to the function being hired for, based in the same country as the user, 2nd-degree connection preferred. This is the person who can forward a profile internally or validate the user to the HM. Action: Connect + note. Selection criteria in priority order: (a) 2nd degree with mutual connections; (b) same country as the user (`my_location` from `pipeline-preferences.json`); (c) active on LinkedIn (recent posts or activity visible); (d) function adjacent to the role (PMM for PM roles; BI/Analytics for data roles; etc.).
+1. **Hiring Manager candidate** — already identified in dimension 10. Record reachability as unverified. Action: Find on LinkedIn and connect.
+2. **One internal advocate** — someone in a role adjacent to the function being hired for, based in the same country as the user, 2nd-degree connection preferred. This is the person who can forward a profile internally or validate the user to the HM. Action: Find on LinkedIn and connect. Select using verifiable public evidence of the same country (`my_location`), public activity, and adjacent function (PMM for PM roles; BI/Analytics for data roles; etc.); degree and mutual connections remain unverified.
 3. **Skip everything else** — 3rd-degree contacts with no mutual path, global functional heads with no hiring relationship to this role, or anyone whose reach would require cold outreach to a connection with no clear reason to engage. One skipped row in the table is enough; do not list every excluded person.
 
 **Research steps:**
 
-1. Use `search_people` to find employees at the company in the function adjacent to the role (e.g. `search_people(keywords="[function keyword]", company="[company name]")`).
-2. For each candidate advocate: check degree of connection, mutual count, country, and recent activity via `get_person_profile`.
-3. For the HM (already profiled in dimension 10): verify LinkedIn reachability (public profile present, no InMail-only restriction signal).
+1. Find employees at the company in the function adjacent to the role with WebSearch (company Team/About page, theorg.com, conference bios); do not open LinkedIn pages.
+2. For each candidate advocate: record country and any public activity visible in search results; degree of connection and mutual count are not verifiable — say so.
+3. For the HM (already researched in dimension 10): note that LinkedIn reachability is unverified.
 4. For each actionable contact (HM candidate + selected advocate only): identify ONE specific engagement hook — something genuine from their profile, their company's recent direction, or the user's actual background that gives them a reason to engage — for the table's `Why` column. Specific enough to write a 2-sentence LinkedIn note from; skip generic observations ("we both care about marketing"). **(2026-07-23, per the user: "I ONLY want the table with recommended people and the relevant data there" — the hook lives in the table's `Why` cell; there is no separate Note-angles section and no Email/WhatsApp section anymore.)**
 
 **Confidence labels:**

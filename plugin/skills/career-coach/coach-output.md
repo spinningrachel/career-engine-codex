@@ -113,15 +113,15 @@ Return findings in this exact structure for every role received.
 
 ### Outreach map format
 
-Included for every role that completes full research (Priority 1–4), whether or not the LinkedIn MCP is connected. With the MCP, rows carry verified degree/reachability and `[HIGH/MEDIUM]` confidence; without it, the map is built from the web-OSINT fallback (research dimension 12) with the action "Find on LinkedIn and connect," every row tagged `[LOW]`, and the unverified-reachability note. Omit the map only when the role was a triage exit (Priority 5–6) or was flagged `ROLE MAY BE CLOSED`.
+Included for every role that completes full research (Priority 1–4). LinkedIn is never scraped, so the map is built from the web-OSINT fallback (research dimension 12) with the action "Find on LinkedIn and connect," every row tagged `[LOW]`, and the unverified-reachability note. Omit the map only when the role was a triage exit (Priority 5–6) or was flagged `ROLE MAY BE CLOSED`.
 
 ```
 ## Outreach — <Company>
 
 | Person | Action | Why | Channel | Confidence |
 |---|---|---|---|---|
-| <Name, Title> | Connect + short note | <1 sentence: role relationship + one specific engagement hook> | LinkedIn | [HIGH/MEDIUM/LOW] |
-| <Name, Title> | Connect + note | <1 sentence: advocate rationale + hook> | LinkedIn | [HIGH/MEDIUM/LOW] |
+| <Name, Title> | Find on LinkedIn and connect | <1 sentence: role relationship + one specific engagement hook> | LinkedIn (manual; reachability unverified) | [LOW] |
+| <Name, Title> | Find on LinkedIn and connect | <1 sentence: advocate rationale + hook> | LinkedIn (manual; reachability unverified) | [LOW] |
 | <Name, Title> | Skip | <1 sentence: why not worth pursuing> | — | — |
 ```
 
