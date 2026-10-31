@@ -69,7 +69,7 @@ class PortTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
             (root/'.codex-plugin').mkdir()
-            (root/'.codex-plugin/plugin.json').write_text('{"name":"test"}')
+            (root/'.codex-plugin/plugin.json').write_text('{"name":"career-engine"}')
             content='output_folder: /U'+'sers/fixture/Documents/out'
             cases=[
                 ('apply_patch',f'*** Begin Patch\n*** Add File: references/profile.md\n+{content}\n*** End Patch',2),
@@ -83,6 +83,43 @@ class PortTests(unittest.TestCase):
                 with self.subTest(tool=tool,args=args):
                     result=subprocess.run(['python3',str(hook)],input=json.dumps({'tool_name':tool,'tool_input':args,'cwd':tmp}),text=True,capture_output=True)
                     self.assertEqual(result.returncode,expected,result.stderr)
+
+    def test_native_guard_scopes_plugin_and_marketplace_identity(self):
+        hook=PLUGIN/'scripts/codex-personal-data-hook.py'
+        content='database_id: '+'3465ef1aa634'+'80a283cfdf847cb47404'
+        marketplace=json.loads((ROOT/'.agents/plugins/marketplace.json').read_text())
+        cases=[
+            ('.codex-plugin/plugin.json', {'name':'career-engine'}, 2),
+            ('.codex-plugin/plugin.json', {'name':'unrelated-plugin'}, 0),
+            ('.agents/plugins/marketplace.json', marketplace, 2),
+            ('.agents/plugins/marketplace.json', {'name':'unrelated','plugins':[]}, 0),
+            ('.agents/plugins/marketplace.json', {'name':'cheyfitz-codex','plugins':[]}, 0),
+        ]
+        for manifest,identity,expected in cases:
+            with self.subTest(manifest=manifest,identity=identity),tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp)
+                path=root/manifest
+                path.parent.mkdir(parents=True)
+                path.write_text(json.dumps(identity))
+                # Both native payload forms must use target identity, even
+                # when the shell session starts outside the protected root.
+                target=root/'skills/x/SKILL.md'
+                payloads=[
+                    {'tool_name':'apply_patch','cwd':tmp,'tool_input':f'*** Begin Patch\n*** Add File: {target}\n+{content}\n*** End Patch'},
+                    {'tool_name':'functions.exec_command','cwd':'/tmp','tool_input':{'cmd':f'echo "{content}" > {target}','workdir':'/tmp'}},
+                ]
+                for payload in payloads:
+                    result=subprocess.run(['python3',str(hook)],input=json.dumps(payload),text=True,capture_output=True)
+                    self.assertEqual(result.returncode,expected,result.stderr)
+                # An unrelated nested plugin remains outside this guard,
+                # even inside the Career Engine source checkout.
+                if expected == 2:
+                    nested=root/'other/.codex-plugin/plugin.json'
+                    nested.parent.mkdir(parents=True)
+                    nested.write_text('{"name":"unrelated-plugin"}')
+                    payload={'tool_name':'Write','tool_input':{'file_path':str(root/'other/skills/x.md'),'content':content}}
+                    result=subprocess.run(['python3',str(hook)],input=json.dumps(payload),text=True,capture_output=True)
+                    self.assertEqual(result.returncode,0,result.stderr)
 
     def test_archive_contains_native_plugin_and_no_test_harness(self):
         with tempfile.TemporaryDirectory() as tmp:

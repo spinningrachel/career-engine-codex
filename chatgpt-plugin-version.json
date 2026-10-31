@@ -1,6 +1,6 @@
 {
-  "package_version": "1.0.0+upstream.6dc1f05d2a29.chat.534b496220f4",
-  "upstream_commit": "6dc1f05d2a298c6ad154ce96b5f623755acad641",
+  "package_version": "1.0.0+upstream.5c9cb861a451.chat.534b496220f4",
+  "upstream_commit": "5c9cb861a4517d26d743caf3c0d83c97413e266b",
   "archive": "career-engine-chatgpt-plugin.zip",
-  "archive_sha256": "5e5b63c6238331e2b4811801c24101808f4bfb3c33345460fbfae5c2570c872e"
+  "archive_sha256": "2b7f7d67444d2718593fb92d487eb778b1cbd73b02949a0a30f258d55628b825"
 }
