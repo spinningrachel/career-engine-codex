@@ -83,6 +83,49 @@ def adapt_intake_corrections(target):
         text = text.replace(anchor, replacement, 1)
         path.write_text(text)
 
+def adapt_linkedin_removal(target):
+    """Resolve legacy consumers against upstream's October 31 no-fetch policy."""
+    edits = {
+        'agents/career-coach.md': [
+            ('Take the company and title from the row and continue to step 1 (company careers page, ATS/board mirrors, exact-title search).',
+             'For every LinkedIn URL, with or without a job ID, take the company and title from the row and go directly to steps 3–5 (company careers page, ATS/board mirrors, exact-title search). Skip steps 1–2. Apply intake Step 0.5’s once-per-run removal notice and LinkedIn-blocked outcome when no public mirror is found.'),
+            ('Try the Job URL directly. If blocked (LinkedIn login wall, gated portal, 403/redirect)',
+             'Try a non-LinkedIn Job URL directly. If blocked (gated portal, 403/redirect)'),
+            ('including JavaScript-rendered career pages and LinkedIn auth-walled postings. Call the strongest available on the Job URL.',
+             'including JavaScript-rendered career pages. Call the strongest available on the non-LinkedIn Job URL. Never fetch a LinkedIn search hit or redirect destination; use search snippets only and find a public non-LinkedIn mirror.'),
+        ],
+        'skills/career-coach/coach-research.md': [
+            ('## Research Phase',
+             '## Research Phase\n\n**October 31 source policy (applies to every dimension, deep-scan, and self-check below):** per the upstream user’s “Yes, plan the removal,” never open or automatically fetch LinkedIn pages, including redirects. Historical LinkedIn examples below describe evidence types, not permission to access that host. Use search-result snippets only as hints; verify facts on company Team/About/Careers pages, public biographies, interviews, conference talks, and non-LinkedIn job boards. Preserve every required research dimension, location cross-version check, org-depth sweep, and confidence check. For LinkedIn People/location/headcount/tenure/hiring-history examples, seek the same evidence on those public sources; record unknown when unavailable and never invent counts or reachability. Org depth scans all relevant function titles on company/team pages and public bios, naming the sources actually checked in the confidence block; do not claim a LinkedIn scan. Degree, mutual connections, and LinkedIn reachability remain unverified; they cannot be prerequisites for choosing contacts. Outreach actions are “Find on LinkedIn and connect” for the user to perform manually, every row [LOW].'),
+            ('Confirm they are reachable on LinkedIn (public profile, accepts connections). Action: Connect + short note.',
+             'Record reachability as unverified. Action: Find on LinkedIn and connect.'),
+            ('Action: Connect + note. Selection criteria in priority order: (a) 2nd degree with mutual connections; (b) same country as the user (`my_location` from `pipeline-preferences.json`); (c) active on LinkedIn (recent posts or activity visible); (d) function adjacent to the role (PMM for PM roles; BI/Analytics for data roles; etc.).',
+             'Action: Find on LinkedIn and connect. Select using verifiable public evidence of the same country (`my_location`), public activity, and adjacent function (PMM for PM roles; BI/Analytics for data roles; etc.); degree and mutual connections remain unverified.'),
+        ],
+        'skills/career-coach/coach-analysis.md': [
+            ('Review their LinkedIn posts, company blog articles, X/Twitter if public, and any published interviews',
+             'Review company blog articles, public X/Twitter posts, and published interviews; LinkedIn search snippets are hints only, never open the page'),
+            ("Search LinkedIn for the company's recruiter or talent team — cross-reference any name visible on the job posting.",
+             "Search company Team/About pages, public bios, and search-result snippets for the company's recruiter or talent team — cross-reference any name visible on the job posting; never open LinkedIn pages."),
+            ('**Search LinkedIn for the company** and scan **all** people with {{USER_PROFESSION}} titles — not just the most senior one.',
+             '**Search company Team/About pages, public bios, and conference/interview sources** and scan **all** people with {{USER_PROFESSION}} titles — not just the most senior one. LinkedIn search-result snippets are hints only; never open LinkedIn pages. Record evidence sources actually checked, flag incomplete coverage, and never invent team members.'),
+        ],
+        'skills/career-coach/coach-output.md': [
+            ('| <Name, Title> | Connect + short note | <1 sentence: role relationship + one specific engagement hook> | LinkedIn | [HIGH/MEDIUM/LOW] |',
+             '| <Name, Title> | Find on LinkedIn and connect | <1 sentence: role relationship + one specific engagement hook> | LinkedIn (manual; reachability unverified) | [LOW] |'),
+            ('| <Name, Title> | Connect + note | <1 sentence: advocate rationale + hook> | LinkedIn | [HIGH/MEDIUM/LOW] |',
+             '| <Name, Title> | Find on LinkedIn and connect | <1 sentence: advocate rationale + hook> | LinkedIn (manual; reachability unverified) | [LOW] |'),
+        ],
+    }
+    for relative, replacements in edits.items():
+        path = target / relative
+        text = path.read_text()
+        for old, new in replacements:
+            if text.count(old) != 1:
+                raise RuntimeError('LinkedIn removal consumer changed; review required: ' + relative)
+            text = text.replace(old, new, 1)
+        path.write_text(text)
+
 def preserve_stop_policy(source, target):
     # Codex has no prompt Stop hook. Preserve its career policy as required
     # runtime guidance instead of dropping it with the Claude hook API.
@@ -255,6 +298,7 @@ def generate(source):
                 shutil.copy2(p,out)
     adapt_usage(target)
     adapt_intake_corrections(target)
+    adapt_linkedin_removal(target)
     hashes = {str(p.relative_to(target)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(target.rglob('*')) if p.is_file()}
     (ROOT / 'upstream-lock.json').write_text(json.dumps({'repository':'spinningrachel/career-engine-claude','commit':commit,'generated_sha256':hashes},indent=2)+'\n')
     print('Ported',commit,'to',target,':',len(hashes),'files')

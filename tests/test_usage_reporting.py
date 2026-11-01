@@ -44,6 +44,13 @@ class UsageReportingTests(unittest.TestCase):
             (source / 'hooks/hooks.json').write_text(json.dumps({'hooks': {'Stop': [{'hooks': [{'type': 'prompt', 'prompt': 'Synthetic queue-completion policy'}]}]}}))
             (source / 'scripts/qa-parity.json').write_text(json.dumps({'defined_terms': []}))
             (source / 'agents/role-prioritizer.md').write_text('Synthetic role fixture\n')
+            # Model required LinkedIn-removal anchors without skipping their gate.
+            linkedin_consumers = {'agents/career-coach.md': 'Take the company and title from the row and continue to step 1 (company careers page, ATS/board mirrors, exact-title search).\nTry the Job URL directly. If blocked (LinkedIn login wall, gated portal, 403/redirect)\nincluding JavaScript-rendered career pages and LinkedIn auth-walled postings. Call the strongest available on the Job URL.\n', 'skills/career-coach/coach-research.md': '## Research Phase\nConfirm they are reachable on LinkedIn (public profile, accepts connections). Action: Connect + short note.\nAction: Connect + note. Selection criteria in priority order: (a) 2nd degree with mutual connections; (b) same country as the user (`my_location` from `pipeline-preferences.json`); (c) active on LinkedIn (recent posts or activity visible); (d) function adjacent to the role (PMM for PM roles; BI/Analytics for data roles; etc.).\n', 'skills/career-coach/coach-analysis.md': '**Search LinkedIn for the company** and scan **all** people with {{USER_PROFESSION}} titles — not just the most senior one.\n', 'skills/career-coach/coach-output.md': '| <Name, Title> | Connect + short note | <1 sentence: role relationship + one specific engagement hook> | LinkedIn | [HIGH/MEDIUM/LOW] |\n| <Name, Title> | Connect + note | <1 sentence: advocate rationale + hook> | LinkedIn | [HIGH/MEDIUM/LOW] |\n'}
+            linkedin_consumers["skills/career-coach/coach-analysis.md"] += "Review their LinkedIn posts, company blog articles, X/Twitter if public, and any published interviews\nSearch LinkedIn for the company's recruiter or talent team — cross-reference any name visible on the job posting.\n"
+            for relative, content in linkedin_consumers.items():
+                consumer = source / relative
+                consumer.parent.mkdir(parents=True, exist_ok=True)
+                consumer.write_text(content + "FUTURE CONSUMER GATE\n")
             intake = source / 'skills/career-engine-intake/SKILL.md'
             intake.parent.mkdir()
             intake.write_text("**Confirmation pass — run immediately after this role's writes, before moving to the next role (this closes the past silent-drop; see the per-role sequencing rule above).**\nFUTURE CONFIRMATION GATE\n")
