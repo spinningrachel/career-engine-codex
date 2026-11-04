@@ -88,7 +88,7 @@ def adapt_linkedin_removal(target):
     edits = {
         'agents/career-coach.md': [
             ('Take the company and title from the row and continue to step 1 (company careers page, ATS/board mirrors, exact-title search).',
-             'For every LinkedIn URL, with or without a job ID, take the company and title from the row and go directly to steps 3–5 (company careers page, ATS/board mirrors, exact-title search). Skip steps 1–2. Apply intake Step 0.5’s once-per-run removal notice and LinkedIn-blocked outcome when no public mirror is found.'),
+             'For every LinkedIn URL, with or without a job ID, take the company and title from the row and go directly to intake Step 0.5’s rungs 2–5 (job-data connectors, company careers page, ATS/board mirrors, exact-title search). Skip direct and rendering fetches of LinkedIn. Apply intake Step 0.5’s once-per-run removal notice and LinkedIn-blocked outcome when no public mirror is found.'),
             ('Try the Job URL directly. If blocked (LinkedIn login wall, gated portal, 403/redirect)',
              'Try a non-LinkedIn Job URL directly. If blocked (gated portal, 403/redirect)'),
             ('including JavaScript-rendered career pages and LinkedIn auth-walled postings. Call the strongest available on the Job URL.',
@@ -125,6 +125,51 @@ def adapt_linkedin_removal(target):
                 raise RuntimeError('LinkedIn removal consumer changed; review required: ' + relative)
             text = text.replace(old, new, 1)
         path.write_text(text)
+
+def adapt_job_discovery(target):
+    """Bind upstream tool discovery to the actual host; retain the full ladder."""
+    mapping = (
+        '\n**Job-tool discovery on this host:** `ToolSearch` means inspect the actual '
+        'host tool catalog and use its available capability-search facility, if any; '
+        'it is not a literal callable API. Search for the extraction and job-search '
+        'keywords in intake Step 0.5, inspect returned schemas and provider descriptions, '
+        'and invoke only real available tools. If discovery is unavailable, inspect '
+        'all exposed tool descriptions and record that limitation; never claim hidden '
+        'connectors were checked. Record the tools discovered, queries actually made, '
+        'results and unavailable capabilities this run. Provider examples do not '
+        'establish installed connectors. Preserve rung 2’s queries to every discovered '
+        'job-data connector with company + exact title, then company alone, stopping '
+        'when usable matching live content is found as the ladder requires. Never '
+        'query linkedin-mcp or fetch linkedin.com through any tool. An unavailable '
+        'tool falls through as prescribed; an unexecuted search is never evidence '
+        'of no matching listing.\n'
+    )
+    for relative in ('skills/career-engine-intake/SKILL.md',
+                     'agents/role-prioritizer.md', 'agents/career-coach.md'):
+        path = target / relative
+        text = path.read_text()
+        if relative == 'agents/career-coach.md':
+            mapping_here = mapping + (
+                '\n**JD ladder precedence:** for standalone, inline, and incomplete-queue '
+                'fallbacks, read and execute skills/career-engine-intake/SKILL.md '
+                'Step 0.5’s current ladder before using the older numbered summary '
+                'below. The November 4 job-data-connector rung applies to every '
+                'failed fetch, LinkedIn links, and rows without URLs. Preserve '
+                'user-note precedence, match and liveness checks, closure rules, '
+                'fetch markers, alternate URLs, and captured versions.\n')
+        elif relative == 'agents/role-prioritizer.md':
+            mapping_here = mapping + (
+                '\n**Role scope:** perform this role sequentially without spawning '
+                'nested agents. The upstream disallowedTools metadata is not a '
+                'host permission boundary; the no-Agent and no-linkedin-mcp '
+                'restrictions are explicit role instructions. Preserve the Path B '
+                'stop-and-report gate when safe delegation is unavailable.\n')
+        else:
+            mapping_here = mapping
+        if text.count(BOOT) != 1:
+            raise RuntimeError('Job discovery host bootstrap changed: ' + relative)
+        path.write_text(text.replace(BOOT, BOOT + mapping_here, 1))
+
 
 def preserve_stop_policy(source, target):
     # Codex has no prompt Stop hook. Preserve its career policy as required
@@ -299,6 +344,7 @@ def generate(source):
     adapt_usage(target)
     adapt_intake_corrections(target)
     adapt_linkedin_removal(target)
+    adapt_job_discovery(target)
     hashes = {str(p.relative_to(target)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(target.rglob('*')) if p.is_file()}
     (ROOT / 'upstream-lock.json').write_text(json.dumps({'repository':'spinningrachel/career-engine-claude','commit':commit,'generated_sha256':hashes},indent=2)+'\n')
     print('Ported',commit,'to',target,':',len(hashes),'files')

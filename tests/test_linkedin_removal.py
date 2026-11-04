@@ -16,8 +16,8 @@ class LinkedInRemovalTests(unittest.TestCase):
         coach = (ROOT / 'plugin/agents/career-coach.md').read_text()
         intake = (ROOT / 'plugin/skills/career-engine-intake/SKILL.md').read_text()
         prioritizer = (ROOT / 'plugin/agents/role-prioritizer.md').read_text()
-        self.assertIn('go directly to steps 3–5', coach)
-        self.assertIn('Skip steps 1–2', coach)
+        self.assertIn('go directly to intake Step 0.5’s rungs 2–5', coach)
+        self.assertIn('Skip direct and rendering fetches of LinkedIn', coach)
         self.assertNotIn('continue to step 1 (company careers page', coach)
         self.assertNotIn('LinkedIn auth-walled postings', coach)
         self.assertIn('once-per-run removal notice', coach)
@@ -35,7 +35,7 @@ class LinkedInRemovalTests(unittest.TestCase):
         ]:
             with self.subTest(archive=archive), zipfile.ZipFile(ROOT / archive) as z:
                 doctrine = z.read(source).decode()
-                for term in ('Skip steps 1–2', 'never invent counts or reachability',
+                for term in ('Skip direct and rendering fetches of LinkedIn', 'never invent counts or reachability',
                              'Preserve every required research dimension',
                              'LinkedIn (manual; reachability unverified) | [LOW]'):
                     self.assertIn(term, doctrine)
