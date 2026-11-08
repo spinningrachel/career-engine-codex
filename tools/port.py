@@ -135,7 +135,15 @@ def adapt_job_discovery(target):
         'keywords in intake Step 0.5, inspect returned schemas and provider descriptions, '
         'and invoke only real available tools. If discovery is unavailable, inspect '
         'all exposed tool descriptions and record that limitation; never claim hidden '
-        'connectors were checked. Record the tools discovered, queries actually made, '
+        'connectors were checked. Provider connection commands such as claude mcp add '
+        'and Customize → Connectors describe the upstream host, not Codex or ChatGPT. '
+        'Preserve the up-to-three relevant, non-blocking connector suggestions when none '
+        'is connected; use actual host connection/plugin-management capabilities and '
+        'verified provider support for setup instructions. Never present a Claude '
+        'command as a Codex or ChatGPT command. If no supported connection method can '
+        'be verified, name the suggested provider and its public endpoint, mark the '
+        'host-specific connect instruction unavailable, and continue without claiming '
+        'a connection was created. Record the tools discovered, queries actually made, '
         'results and unavailable capabilities this run. Provider examples do not '
         'establish installed connectors. Preserve rung 2’s queries to every discovered '
         'job-data connector with company + exact title, then company alone, stopping '
@@ -145,7 +153,9 @@ def adapt_job_discovery(target):
         'of no matching listing.\n'
     )
     for relative in ('skills/career-engine-intake/SKILL.md',
-                     'agents/role-prioritizer.md', 'agents/career-coach.md'):
+                     'agents/role-prioritizer.md', 'agents/career-coach.md',
+                     'agents/source-open-roles.md', 'skills/source-open-roles/SKILL.md',
+                     'references/job-sourcing-mcp-registry.md'):
         path = target / relative
         text = path.read_text()
         if relative == 'agents/career-coach.md':
@@ -166,9 +176,34 @@ def adapt_job_discovery(target):
                 'stop-and-report gate when safe delegation is unavailable.\n')
         else:
             mapping_here = mapping
+        if relative.startswith('references/'):
+            path.write_text(text + mapping_here)
+        else:
+            if text.count(BOOT) != 1:
+                raise RuntimeError('Job discovery host bootstrap changed: ' + relative)
+            path.write_text(text.replace(BOOT, BOOT + mapping_here, 1))
+
+
+def adapt_run_records(target):
+    mapping = ('\n**Run-records host execution:** Before setup or closing-run records, '
+               'read references/run-records-host.md. Use the actual Codex filesystem '
+               'or ChatGPT private Data Analysis runtime, preserve the configured '
+               'schema and readback gates, and keep interrupted-run scratch.\n')
+    for relative in ('skills/run-records/SKILL.md', 'skills/career-engine-setup/SKILL.md'):
+        path = target / relative
+        text = path.read_text()
         if text.count(BOOT) != 1:
-            raise RuntimeError('Job discovery host bootstrap changed: ' + relative)
-        path.write_text(text.replace(BOOT, BOOT + mapping_here, 1))
+            raise RuntimeError('Run records host bootstrap changed: ' + relative)
+        path.write_text(text.replace(BOOT, BOOT + mapping, 1))
+    # The Claude Stop-hook explanation is inapplicable; the destination stays.
+    relative = 'skills/career-engine-orchestrator/orchestrator-post-run.md'
+    path = target / relative
+    text = path.read_text()
+    old = 'It is written there directly, never moved later, because the Stop hook finds the file by the path of this write.'
+    new = 'Write it directly to agent_data_folder, never move it later. Apply references/run-metrics-host.md for verified host accounting.'
+    if text.count(old) != 1:
+        raise RuntimeError('Run metrics destination anchor changed; review required')
+    path.write_text(text.replace(old, new))
 
 
 def preserve_stop_policy(source, target):
@@ -345,6 +380,7 @@ def generate(source):
     adapt_intake_corrections(target)
     adapt_linkedin_removal(target)
     adapt_job_discovery(target)
+    adapt_run_records(target)
     hashes = {str(p.relative_to(target)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(target.rglob('*')) if p.is_file()}
     (ROOT / 'upstream-lock.json').write_text(json.dumps({'repository':'spinningrachel/career-engine-claude','commit':commit,'generated_sha256':hashes},indent=2)+'\n')
     print('Ported',commit,'to',target,':',len(hashes),'files')

@@ -1080,9 +1080,17 @@ For each finding, report: the step reference, the failure type (from the list be
 
 **F8 note:** this was the failure mode on 2026-06-17 when the orchestrator asked "How should I scope this New Applications run?" instead of declaring the queue and proceeding. The instruction said "report the queue and proceed immediately" but did not say the report was a one-way declaration — so the agent asked. Any step with similar structure is F8.
 
+### Check 75 — Run records and cleanup (2026-11-08, per the user)
+
+Verify `skills/run-records/SKILL.md` is cited by all three pipelines' closing steps (orchestrator-post-run Step 10, edit's Final chat delivery, intake's closing step); `agent_data_folder` and `run_records.*` are optional never-blocking keys; the agent-data folder is flat (no step creates a subdirectory in it); cleanup deletes only after the reports are filed and the log write is read back, never on an interrupted run, uses an allowlist (`.docx`) for role folders, and per-role steps (7g, E10) do not delete `state.json` or `halted-roles.json` (only Step 10 does, after the final message is composed). `run-metrics` is written straight to `agent_data_folder` (the Stop hook finds it by its write path). Flexible mode never adds, renames, or deletes a column.
+
 ### Check 74 — Capability matching by default (2026-10-19, per the user)
 
 Verify `role_matching` (`capabilities` default | `titles`), `scope_preferences` and `cv_title_rules` are optional, never-blocking keys read by: sourcing (two-pass scoring, Capabilities-mode table, title-hidden rule scoped to `titles`), the prioritizer (`titles` → profile not read; want/avoid ±1 tier), intake (Step −1.6, `MATCHING MODE` and `USER SCOPE PREFERENCES` in `queue.md`), the coach (Keep default under `titles`; avoid caps the tier), and both Step 0.titles/E0.titles (`MODE:` header). Setup and the CSV no longer create `CV Title Preferences`; it stays a legacy read. Removals must carry the quoted user instruction in commit and changelog. Mechanized: scripts/qa-mechanical.sh (CHECK 74). Phase 0-D: any diff touching these keys sweeps all consumers above.
+
+### Check 75 — Connector-agnostic sourcing and JD connector rung (2026-11-03, per the user)
+
+Verify: `source-open-roles` and `role-prioritizer` declare no `tools:` allowlist and carry a read-only rule; Gate 1 never asks the user for preferences (set values used as-is, empty ones inferred, update-prompt offered after the run); Gate 2 discovers connectors via `ToolSearch` with the pedantic-access retries; the registry has Discovery plus the free / no-login suggestion list and no Wired-in gate; intake Step 0.5 rung 2, the coach ladder (step 2b) and edit E0.5 all search connected connectors by company + title (never by URL/key); the official-URL search rule exists; `LinkedIn-blocked`/`Unfetchable` reports name what was searched; setup suggests connectors when none is connected. Removals (the preference interview, the Wired-in gate, the allowlists) must cite the user's 2026-11-03 request in the commit and changelog.
 
 ### Check 73 — Manifest version is bumped on every shipped build (2026-10-15)
 

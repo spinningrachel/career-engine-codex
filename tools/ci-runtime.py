@@ -15,7 +15,7 @@ RECORD = ROOT / '.sync-work/review-runtime.json'
 
 def record():
     sites = set()
-    for name in ('docx', 'lxml', 'yaml', 'typing_extensions'):
+    for name in ('docx', 'lxml', 'yaml', 'typing_extensions', 'openpyxl', 'et_xmlfile'):
         spec = importlib.util.find_spec(name)
         if spec is None or spec.origin is None:
             raise RuntimeError('Required dependency missing during trusted setup: ' + name)
@@ -63,7 +63,7 @@ def main():
     data = json.loads(RECORD.read_text())
     env = environment(data)
     if args.operation == 'check':
-        subprocess.run([data['python'], '-c', 'import docx, lxml, yaml; print("Prepared export dependencies import successfully")'], env=env, check=True)
+        subprocess.run([data['python'], '-c', 'import docx, lxml, yaml, openpyxl, et_xmlfile; print("Prepared export and workbook dependencies import successfully")'], env=env, check=True)
         subprocess.run(['codex', '--version'], env=env, check=True)
     else:
         if not args.command:
