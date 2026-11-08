@@ -47,3 +47,7 @@ For a new Codex CLI installation, install Node.js, run `npm install -g @openai/c
 ## Run usage reports
 
 Read references/run-metrics-host.md for every applicable pipeline and interrupted-run delivery. Verify and link the structural report. Token counts and cost require verified run evidence; otherwise record unavailable with reasons. Claude's Stop hook is not a Codex accounting fallback.
+
+## Run records and workbook logs
+
+Read `references/run-records-host.md` with `skills/run-records/SKILL.md` for setup and closing steps. Metrics are written directly to the private external `agent_data_folder` (default `agent-data` next to `output_folder`); reports are filed flat there. Workbook logs require openpyxl and verified readback; ChatGPT materializes the packaged `runtime/xlsx_log.py.txt` in private Data Analysis and returns the updated private workbook. Compose delivery from persisted state before cleanup; interrupted runs retain all scratch. No Claude Stop hook is used.

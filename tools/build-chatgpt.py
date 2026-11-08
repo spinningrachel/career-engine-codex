@@ -95,6 +95,7 @@ def files():
     entries['knowledge/00-host-and-index.txt']=(runtime+'\n\n'+contract.decode()+'\n\n## Source index\n'+index_text+'\n').encode()
     entries['runtime/chatgpt_export.py.txt']=(ROOT/'chatgpt/chatgpt_export.py').read_bytes()
     entries['runtime/assemble_brief_cv.py.txt']=(ROOT/'plugin/skills/career-engine-export/scripts/assemble_brief_cv.py').read_bytes()
+    entries['runtime/xlsx_log.py.txt']=(ROOT/'plugin/skills/run-records/scripts/xlsx_log.py').read_bytes()
     entries['actions/notion-openapi.json']=(ROOT/'chatgpt/notion-openapi.json').read_bytes()
     for stem,name in [('cv-template-default','detailed-cv'),('cv-template-brief-default','brief-cv'),('cover-letter-template','cover-letter')]:
         entries['templates/'+name+'.docx']=docx_template((ROOT/'plugin/references'/f'{stem}.dotx').read_bytes())

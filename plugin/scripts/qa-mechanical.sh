@@ -364,9 +364,10 @@ expect_ge "21s" "skills/career-coach/coach-output.md" "3–4 bullets, most impor
 expect_ge "21s" "skills/gatekeeper-checks/cv-gates.md" "CV-TOTAL-WORDCOUNT" 1
 expect_ge "21s" "skills/gatekeeper-checks/cv-gates.md" "890" 1
 expect_ge "21s" "skills/writer-craft/cv.md" "Whole CV ≤ 890 words" 1
-expect_ge "21s" "skills/letter-core/SKILL.md" "Senior roles — one paragraph on what success looks like" 1
+expect_ge "21s" "skills/letter-core/SKILL.md" "the measure is woven into the argument, never its own paragraph" 1
 expect_ge "21s" "skills/gatekeeper-checks/letter-gates.md" "Success measure (senior roles only" 1
-expect_ge "21s" "skills/gatekeeper-checks/coach-gates.md" "senior role with no success-measure line" 1
+expect_ge "21s" "skills/gatekeeper-checks/coach-gates.md" "MEASURE:" 1
+expect_ge "21s" "skills/career-coach/coach-analysis.md" "Derive them from the company's stage and motion" 1
 # 2026-07-24: the coach's Opener line is a verbatim bank-variant copy/paste (per the user's direct instruction)
 expect_ge "21s" "agents/career-coach.md" "COPY/PASTE selection, never composition" 1
 expect_ge "21s" "skills/gatekeeper-checks/coach-gates.md" "not a verbatim bank copy" 1
@@ -1167,6 +1168,24 @@ expect_ge "74" "skills/career-coach/coach-analysis.md" "USER SCOPE PREFERENCES" 
 expect_ge "74" "skills/source-open-roles/SKILL.md" "Capabilities mode" 1
 expect_ge "74" "agents/qa-plugin.md" "Check 74" 1
 
+# Check 75 — Connector-agnostic sourcing + JD connector rung (2026-11-03, per the user)
+# ================================================================
+expect_ge "75" "references/job-sourcing-mcp-registry.md" "Discovery" 1
+expect_ge "75" "references/job-sourcing-mcp-registry.md" "pedantic" 1
+expect_eq0 "75" "references/job-sourcing-mcp-registry.md" "Wired-in"
+expect_eq0 "75" "agents/source-open-roles.md" "mcp__startup-jobs__"
+expect_eq0 "75" "agents/source-open-roles.md" "Ask for whatever's still missing"
+expect_ge "75" "agents/source-open-roles.md" "Preferences are optional" 1
+expect_ge "75" "agents/source-open-roles.md" "Read-only tool use" 1
+expect_ge "75" "agents/role-prioritizer.md" "read/search tools only" 1
+expect_ge "75" "skills/career-engine-intake/SKILL.md" "Job-data connectors" 1
+expect_ge "75" "skills/career-engine-intake/SKILL.md" "Official-URL search" 1
+expect_ge "75" "agents/career-coach.md" "Connected job connectors" 1
+expect_ge "75" "skills/career-engine-edit/SKILL.md" "rung 2" 1
+expect_ge "75" "skills/career-engine-setup/SKILL.md" "Job-search connectors" 1
+expect_ge "75" "agents/qa-plugin.md" "Check 75" 1
+
+# ================================================================
 # Check 73 — Manifest version is bumped on every shipped build (2026-10-15)
 # The CLI caches a marketplace plugin under <cache>/<marketplace>/<plugin>/<version>/.
 # Two fixes shipped at version 1.0.0; `claude plugin update` kept serving the 1.0.0
@@ -1182,6 +1201,17 @@ else report "73" 0 "native cache version/provenance invalid"; fi
 expect_ge "73" "scripts/check-invariants.sh" "version-bump" 1
 expect_ge "73" "agents/qa-plugin.md" "Check 73" 1
 expect_ge "73" "skills/plugin-builder/SKILL.md" "bump" 1
+
+# 2026-11-08: run records + cleanup (per the user: flat agent-data folder, workbook-or-Notion log, scratch deleted at the end)
+expect_ge "75" "skills/run-records/SKILL.md" "Clean up" 1
+expect_ge "75" "skills/run-records/SKILL.md" "never a blocklist" 1
+expect_ge "75" "skills/run-records/SKILL.md" "no subdirectories" 1
+expect_ge "75" "skills/run-records/scripts/xlsx_log.py" "def cmd_upsert" 1
+expect_ge "75" "references/run-log-schema.md" "flexible" 1
+expect_ge "75" "references/pipeline-preferences.json" "agent_data_folder" 1
+expect_ge "75" "references/pipeline-preferences.json" "run_records" 1
+expect_ge "75" "skills/career-engine-orchestrator/orchestrator-post-run.md" "Step 10" 1
+expect_ge "75" "skills/career-engine-setup/SKILL.md" "Agent data folder and run log" 1
 
 echo "qa-mechanical: $PASS passed, $FAIL failed"
 

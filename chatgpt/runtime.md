@@ -30,3 +30,7 @@ Check both installation routes on every package update: pasteable instructions w
 ## Run usage reports
 
 Retrieve references/run-metrics-host.md and apply it to setup, Step 9c, and final delivery. Preserve structural and interrupted-run reports, distinguish sequential role passes from spawned agents, and verify the JSON artifact before providing its sandbox download link. Exact token counts and cost stay explicitly unavailable with reasons unless verified run-scoped evidence exists. No Claude Stop hook populates this kit.
+
+## Run records and workbook logs
+
+Read `references/run-records-host.md` with `skills/run-records/SKILL.md` for setup and closing steps. Metrics are written directly to the private external `agent_data_folder` (default `agent-data` next to `output_folder`); reports are filed flat there. Workbook logs require openpyxl and verified readback; ChatGPT materializes the packaged `runtime/xlsx_log.py.txt` in private Data Analysis and returns the updated private workbook. Compose delivery from persisted state before cleanup; interrupted runs retain all scratch. No Claude Stop hook is used.

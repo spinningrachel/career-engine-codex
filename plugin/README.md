@@ -85,10 +85,37 @@ Everything beyond this quick start lives in the **[Wiki](https://github.com/spin
 
 ## Changelog
 
+### 2026-11-08 — Senior-role measure woven into the letter; run records and cleanup
+
+**New features**
+- **Run records** — finished runs are recorded in a log you choose at setup: an Excel workbook in a flat `agent-data` folder, a Notion database, or none. Pick the default columns (`references/run-log-schema.md`) or your own; with your own, the agent reads the live columns before every write and never adds, renames, or deletes one.
+- **Reports in one place** — feedback reports, LinkedIn updates, flagged-role revision logs, and run metrics are filed flat in `agent-data` (no subdirectories). Applications stay where they were.
+
+**Improvements**
+- **End-of-run cleanup (New Application, Edit, Intake)** — once every role is done, reports are filed and the log write is read back, the run deletes its scratch: `_pipeline` folders, `state.json`, `halted-roles.json`, verification and manifest files, and every non-`.docx` file in a role folder (the CV and cover letter markdown copies). Removal made on the user's 2026-11-08 instruction: "the agents leave behind a massive amount of files that aren't necessary". An interrupted run deletes nothing.
+- **Success measure no longer a bolted-on closing paragraph** — the outline marks one paragraph `MEASURE:`/`BRIDGE:` and the writer adds 1-2 sentences there. Gate 9 fails a standalone measure paragraph.
+- **Measures follow company stage and motion** — the coach derives Likely KPIs from `Company Stage`, first-hire status, and the real sales motion (a pre-PMM, direct-sales Series B is judged on pilots becoming contracts, renewals, and Sales' use of the messaging).
+- **Past metrics only when they match** — a past result is cited only when it is the same kind of measure as the KPI; otherwise `BRIDGE: none`. No-silent-removal note: the standalone `Para N-1` line and paragraph were replaced per the user's 2026-11-08 instruction quoted in `letter-core` §3b.
+
 ### 2026-11-04 — Fetch ladder uses connected job tools
 
 **Bug fixes**
 - **"Unfetchable after the full ladder" without using the user's connectors** — the JD ladder only used `WebFetch`/`WebSearch`, and `role-prioritizer` was allowlisted to those two tools, so connected job connectors (JobsPipe, TheirStack, etc.) and scrapers (Exa, Nimble, Apify, HasData) were never called. Rung 2 is now a job-data-connector search (company + title) found via `ToolSearch`; careers-page and search rungs use any connected search/extract tool; the prioritizer's tool allowlist is replaced by a deny-list (`Agent`, `linkedin-mcp`) so it can reach them. User instruction: she has scrapers and many job connectors connected, so "unfetchable after the full ladder" cannot be true. LinkedIn is still never fetched.
+
+### 2026-11-03 — Any job connector works; preferences optional
+
+**New features**
+- **Any connected job-search connector is used** — sourcing discovers whatever job connectors you have (no per-connector wiring), and the JD lookup searches them by company + title when a job link can't be opened, so a role found on one connector can be read even if its own link is blocked. `references/job-sourcing-mcp-registry.md` now lists free / no-login-for-search connectors with connect commands; setup and sourcing suggest a few when none is connected.
+- **Official job URL search** — if the saved link isn't the hiring company's own page, the lookup keeps searching (careers page, ATS, connectors, web) until an official URL is found and opened, or options run out.
+
+**Improvements**
+- **Job-search preferences are optional** — sourcing no longer interviews you when `pipeline-preferences.json` values are empty: set values are used as-is, empty ones are inferred from your capability profile and background, and an update-prompt is offered after the run.
+- **Pedantic access checks** — a single failed call or missing tool name no longer marks a connector unavailable; agents re-discover, retry with simpler parameters and read the error first.
+- **Fewer "blocked" reports** — `LinkedIn-blocked` / `Unfetchable` now appear only after every connector, the careers page, ATS mirrors and title + company search fail, and the report says what was searched.
+
+**Removed (per the user: "more flexible with or without specified job search preferences"; "even less reason for the agent to ever report back that the url was blocked")**
+- The sourcing preference interview, the registry's four-part "Wired-in" gate, and the fixed `tools:` allowlists on `source-open-roles` and `role-prioritizer` (replaced by a read-only rule).
+
 
 ### 2026-10-31 — LinkedIn scraping removed
 

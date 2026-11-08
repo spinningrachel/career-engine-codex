@@ -47,6 +47,10 @@ class UsageReportingTests(unittest.TestCase):
             # Model required LinkedIn-removal anchors without skipping their gate.
             linkedin_consumers = {'agents/career-coach.md': 'Take the company and title from the row and continue to step 1 (company careers page, ATS/board mirrors, exact-title search).\nTry the Job URL directly. If blocked (LinkedIn login wall, gated portal, 403/redirect)\nincluding JavaScript-rendered career pages and LinkedIn auth-walled postings. Call the strongest available on the Job URL.\n', 'skills/career-coach/coach-research.md': '## Research Phase\nConfirm they are reachable on LinkedIn (public profile, accepts connections). Action: Connect + short note.\nAction: Connect + note. Selection criteria in priority order: (a) 2nd degree with mutual connections; (b) same country as the user (`my_location` from `pipeline-preferences.json`); (c) active on LinkedIn (recent posts or activity visible); (d) function adjacent to the role (PMM for PM roles; BI/Analytics for data roles; etc.).\n', 'skills/career-coach/coach-analysis.md': '**Search LinkedIn for the company** and scan **all** people with {{USER_PROFESSION}} titles — not just the most senior one.\n', 'skills/career-coach/coach-output.md': '| <Name, Title> | Connect + short note | <1 sentence: role relationship + one specific engagement hook> | LinkedIn | [HIGH/MEDIUM/LOW] |\n| <Name, Title> | Connect + note | <1 sentence: advocate rationale + hook> | LinkedIn | [HIGH/MEDIUM/LOW] |\n'}
             linkedin_consumers["skills/career-coach/coach-analysis.md"] += "Review their LinkedIn posts, company blog articles, X/Twitter if public, and any published interviews\nSearch LinkedIn for the company's recruiter or talent team — cross-reference any name visible on the job posting.\n"
+            linkedin_consumers['agents/source-open-roles.md'] = 'Synthetic sourcing role\n'
+            linkedin_consumers['skills/source-open-roles/SKILL.md'] = 'Synthetic sourcing skill\n'
+            linkedin_consumers['references/job-sourcing-mcp-registry.md'] = 'Synthetic connector registry\n'
+            linkedin_consumers['skills/run-records/SKILL.md'] = 'Synthetic run records skill\n'
             for relative, content in linkedin_consumers.items():
                 consumer = source / relative
                 consumer.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +63,7 @@ class UsageReportingTests(unittest.TestCase):
             database.write_text('**Pipeline reads:**\nFUTURE DATABASE GATE\n')
             post = source / 'skills/career-engine-orchestrator/orchestrator-post-run.md'
             post.parent.mkdir()
-            post.write_text('Actual token counts are appended by a Stop hook configured during setup — the hook writes to this same file when the session ends.\n"token_counts": "pending — written by Stop hook at session end"\nSet each agent count from the actual invocations this run. Leave `token_counts` as the literal string `"pending — written by Stop hook at session end"` — the hook replaces this value when the session closes.\n## Final Chat Delivery\nFUTURE REQUIRED GATE\n')
+            post.write_text('It is written there directly, never moved later, because the Stop hook finds the file by the path of this write.\nActual token counts are appended by a Stop hook configured during setup — the hook writes to this same file when the session ends.\n"token_counts": "pending — written by Stop hook at session end"\nSet each agent count from the actual invocations this run. Leave `token_counts` as the literal string `"pending — written by Stop hook at session end"` — the hook replaces this value when the session closes.\n## Final Chat Delivery\nFUTURE REQUIRED GATE\n')
             setup = source / 'skills/career-engine-setup/SKILL.md'
             setup.parent.mkdir()
             setup.write_text('**Token usage tracking (optional but recommended):**\nlegacy\nConfirm: "Phase 6 complete.\n')

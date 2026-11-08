@@ -2,3 +2,5 @@ python-docx==1.2.0
 lxml==6.1.1
 typing_extensions==4.16.0
 PyYAML==6.0.2
+openpyxl==3.1.5
+et_xmlfile==2.0.0

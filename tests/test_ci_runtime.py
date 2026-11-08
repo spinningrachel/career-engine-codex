@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,6 +45,21 @@ class CIRuntimeTests(unittest.TestCase):
             result = subprocess.run([system_python, str(launcher), 'check'], env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('codex-test-fixture', result.stdout)
+
+    def test_trusted_setup_requires_and_records_workbook_dependencies(self):
+        runtime = load()
+        actual_find = importlib.util.find_spec
+        for missing in ('openpyxl', 'et_xmlfile'):
+            with self.subTest(missing=missing), patch.object(runtime.importlib.util, 'find_spec', side_effect=lambda name: None if name == missing else actual_find(name)):
+                with self.assertRaisesRegex(RuntimeError, 'Required dependency missing during trusted setup: ' + missing):
+                    runtime.record()
+        with tempfile.TemporaryDirectory() as tmp:
+            runtime.RECORD = Path(tmp) / 'runtime.json'
+            runtime.record()
+            data = json.loads(runtime.RECORD.read_text())
+            for name in ('openpyxl', 'et_xmlfile'):
+                spec = actual_find(name)
+                self.assertIn(str(Path(spec.origin).parent.parent), data['python_path'])
 
     def test_missing_tools_fail_explicitly(self):
         runtime = load()

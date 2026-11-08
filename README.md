@@ -19,7 +19,7 @@ Career Engine's career doctrine, reference templates, roles, and review gates co
 | ChatGPT Custom GPT | Extract the kit; paste GPT instructions and upload its three Knowledge files | [career-engine-chatgpt.zip](https://github.com/spinningrachel/career-engine-codex/raw/refs/heads/main/career-engine-chatgpt.zip) |
 | ChatGPT Project | Extract the same kit; paste Project instructions and add its three knowledge files | Same ChatGPT ZIP |
 
-The ChatGPT ZIP is an installation kit. ChatGPT does not import it as a Codex plugin; follow the configuration steps below. Both ZIPs are committed at the repository root with the matching source.
+The ChatGPT ZIP is an installation kit. ChatGPT does not import it as a Codex plugin; follow the configuration steps below. All three ZIPs are committed at the repository root with the matching source.
 
 ## Install in Codex — new users
 
@@ -33,7 +33,7 @@ codex plugin add career-engine@cheyfitz-codex
 codex
 ```
 
-Use a Codex version with `codex plugin` support; native installation was exercised with CLI `0.159.0-alpha.3`. In the new session, say: **“Use $career-engine-setup to configure my separate career-data skill.”** Supply your existing external skill if already configured. You can then invoke `$career-engine`, describe an operation, or use a specific skill such as `$source-open-roles`.
+Use a Codex version with `codex plugin` support; native installation was exercised with CLI `0.166.0`. In the new session, say: **“Use $career-engine-setup to configure my separate career-data skill.”** Supply your existing external skill if already configured. You can then invoke `$career-engine`, describe an operation, or use a specific skill such as `$source-open-roles`.
 
 For a local repository checkout, substitute `codex plugin marketplace add /absolute/path/to/career-engine-codex` for the GitHub registration command, then install the same plugin. Read [plugin/CODEX-RUNTIME.md](plugin/CODEX-RUNTIME.md) for paths, tools, roles, and prerequisites. DOCX export requires Python 3.10+, pandoc, python-docx, and lxml. Tracker workflows require connected Notion operations. Hook protection requires a supporting Codex host and enabled hooks; installation alone does not prove hooks ran.
 
@@ -80,9 +80,9 @@ python3 -m pip install -r requirements.txt
 bash tools/validate.sh
 ```
 
-Install pandoc through the operating system's package manager. QA covers native compatibility, ChatGPT source coverage and instruction budgets, reproducible archives, portable and upstream DOCX exports, 46 personal-data guard cases, 21 question-gate cases, 606 mechanical checks, 34 relational checks, and repository/archive scans including Office XML. Six Claude hook-format assertions are translated to Codex equivalents; the career-doctrine checks remain intact. Run `python3 tools/check-codex-compatibility.py --install` for actual CLI installation in an isolated test configuration.
+Install pandoc through the operating system's package manager. QA covers native compatibility, ChatGPT source coverage and instruction budgets, reproducible archives, portable and upstream DOCX exports, 46 personal-data guard cases, 21 question-gate cases, 640 mechanical checks, 35 relational checks, and repository/archive scans including Office XML. Six Claude hook-format assertions are translated to Codex equivalents; the career-doctrine checks remain intact. Run `python3 tools/check-codex-compatibility.py --install` for actual CLI installation in an isolated test configuration.
 
-Every update follows [codex/update-contract.md](codex/update-contract.md), included as **UPDATE-CONTRACT.md in both packages** and read by the QA role and automated Codex review. Review Codex and ChatGPT compatibility separately from upstream semantic parity. Maintain this README and the packaged installation guide for all three paths. Rebuild **both** root ZIPs with `python3 tools/build.py`; validation rejects stale archives rather than silently replacing them.
+Every update follows [codex/update-contract.md](codex/update-contract.md), included as **UPDATE-CONTRACT.md in all three packages** and read by the QA role and automated Codex review. Review Codex and ChatGPT compatibility separately from upstream semantic parity. Maintain this README and the packaged installation guide for all three paths. Rebuild **all three** root ZIPs with `python3 tools/build.py`; validation rejects stale archives rather than silently replacing them.
 
 To import an upstream version manually:
 
@@ -93,7 +93,7 @@ python3 tools/build.py
 bash tools/validate.sh
 ```
 
-Never hand-edit generated `plugin/`. Use `tools/port.py` for mechanical translations or `codex/overrides/` for semantic adaptations, then regenerate. ChatGPT adapters and its installation guide live in `chatgpt/`; `tools/build-chatgpt.py` packages all applicable generated doctrine with stable source labels. `upstream-lock.json` hashes generated native files; the ChatGPT manifest indexes every included source section. Commit both ZIPs, matching source, and any affected installation documentation.
+Never hand-edit generated `plugin/`. Use `tools/port.py` for mechanical translations or `codex/overrides/` for semantic adaptations, then regenerate. ChatGPT adapters and its installation guide live in `chatgpt/`; `tools/build-chatgpt.py` packages all applicable generated doctrine with stable source labels. `upstream-lock.json` hashes generated native files; the ChatGPT manifest indexes every included source section. Commit all three ZIPs, matching source, and any affected installation documentation.
 
 ## Automatic upstream updates
 
@@ -111,8 +111,21 @@ Offline validation covers actual native CLI installation, package/source integri
 
 MIT license; upstream authorship is retained.
 
-Run usage reporting preserves the upstream `run-metrics-YYYY-MM-DD.json` output, including interrupted runs. Reports distinguish sequential role passes from spawned agent invocations. Codex and ChatGPT use verified run-scoped measurements only; unavailable tokens and cost carry explicit reasons. Delivery verifies and links the report or reports the failure. The durable adaptation lives in `tools/port.py` and `codex/overrides/references/run-metrics-host.md`; regeneration retains it. Reports and ledgers stay in private external output storage, separate from public packages and career-data.
+Run usage reporting preserves the upstream `run-metrics-YYYY-MM-DD.json` output, including interrupted runs. Reports distinguish sequential role passes from spawned agent invocations. Codex and ChatGPT use verified run-scoped measurements only; unavailable tokens and cost carry explicit reasons. Delivery verifies and links the report or reports the failure. The durable adaptation lives in `tools/port.py` and `codex/overrides/references/run-metrics-host.md`; regeneration retains it. Reports and ledgers stay in the private external agent-data folder, separate from public packages and career-data.
 
 ### Check the version from chat
 
 Ask **Career Engine version** or **was Career Engine updated?** The new plugin includes a dedicated version skill and an embedded build stamp in its main skill. It reports the loaded package build and imported source first, then checks [the latest published version record](https://raw.githubusercontent.com/spinningrachel/career-engine-codex/main/chatgpt-plugin-version.json) when fetching is available. Matching builds mean current; different builds are reported separately, without sorting SemVer build metadata. If the remote check or old installation's stamp is unavailable, it reports unknown. Publishing a ZIP does not update an installed plugin or an existing chat. The account's internal release version may differ from the embedded package build.
+
+## Run reports and workbook logs
+
+Applicable pipelines file reports flat in the private `agent_data_folder` (default `agent-data` next to `output_folder`) and write metrics directly there. Optional run logs support Notion or an Excel workbook, with default or user-defined columns. Workbook execution requires openpyxl, included in the pinned development/CI requirements. Both ChatGPT distributions include `runtime/xlsx_log.py.txt`; materialize it in private Data Analysis, supply any existing private workbook, and save the verified updated download externally. Missing execution or dependencies is reported and retains scratch. Delivery is composed before cleanup; interrupted runs retain their resume files.
+
+## Changelog
+
+### 2026-11-08 — Repair run-records sync
+
+- Provision openpyxl and its XML dependency in trusted CI setup and verify them through the prepared-runtime launcher.
+- Include the upstream workbook helper in both ChatGPT distributions and exercise the packaged copies with default and flexible schemas, idempotent writes, and actual readback.
+- Import upstream e99d58abf554, including report filing/cleanup, connector discovery, and woven-in senior-role measures. Keep metrics in agent-data and preserve interrupted state through explicit Codex and ChatGPT mappings.
+- Extend connector capability discovery to sourcing and the registry; retain read-only, liveness, official-URL, and no-JD write gates. Update the regression assertion for upstream's expanded no-mirror-or-connector outcome.

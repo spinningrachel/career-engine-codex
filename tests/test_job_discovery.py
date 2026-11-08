@@ -9,13 +9,16 @@ ROOT = Path(__file__).resolve().parents[1]
 class JobDiscoveryTests(unittest.TestCase):
     def test_consumers_preserve_discovery_and_liveness(self):
         for relative in ('agents/career-coach.md', 'agents/role-prioritizer.md',
-                         'skills/career-engine-intake/SKILL.md'):
+                         'skills/career-engine-intake/SKILL.md', 'agents/source-open-roles.md',
+                         'skills/source-open-roles/SKILL.md', 'references/job-sourcing-mcp-registry.md'):
             with self.subTest(relative=relative):
                 text = (ROOT / 'plugin' / relative).read_text()
                 self.assertIn('it is not a literal callable API', text)
                 self.assertIn('never claim hidden connectors were checked', text)
                 self.assertIn('company + exact title, then company alone', text)
                 self.assertIn('Never query linkedin-mcp or fetch linkedin.com', text)
+                self.assertIn('Never present a Claude', text)
+                self.assertIn('host-specific connect instruction unavailable', text)
         coach = (ROOT / 'plugin/agents/career-coach.md').read_text()
         self.assertIn('current ladder before using the older numbered summary', coach)
         self.assertIn('match and liveness checks, closure rules', coach)

@@ -21,7 +21,7 @@ class LinkedInRemovalTests(unittest.TestCase):
         self.assertNotIn('continue to step 1 (company careers page', coach)
         self.assertNotIn('LinkedIn auth-walled postings', coach)
         self.assertIn('once-per-run removal notice', coach)
-        self.assertIn('LinkedIn-only listing with no public mirror found', intake)
+        self.assertIn('LinkedIn-only listing with no public mirror or connector match found', intake)
         self.assertIn('No Priority, no Role Summary, no Location write, no Status promotion', prioritizer)
         self.assertIn('JD Fetch Status` is written for every skipped role', prioritizer)
         self.assertIn('liveness check', coach)
