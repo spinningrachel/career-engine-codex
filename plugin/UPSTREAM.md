@@ -1,3 +1,3 @@
 Source: https://github.com/spinningrachel/career-engine-claude
-Commit: e99d58abf55412751af09c667a4bc6e28cc5842b
+Commit: e52472628d6ff87c51ae48dac1c4a3c3b2739913
 MIT; original authorship preserved in LICENSE.
